@@ -57,7 +57,7 @@ public class SubscriptionService {
 
         Subscription saved = subscriptionRepository.save(subscription);
         saveHistory(saved, TransactionType.SUBSCRIBE, product.getPaymentAmount(), "상품 가입");
-        logEventPublisher.service("상품 가입: user=" + user.getEmail() + ", product=" + product.getName()
+        logEventPublisher.subscription("상품 가입: user=" + user.getEmail() + ", product=" + product.getName()
                 + ", account=" + account.getAccountNumberFormatted());
         return toResponse(saved);
     }
@@ -83,7 +83,7 @@ public class SubscriptionService {
         subscription.terminate(interest);
         subscription.getAccount().addBalance(subscription.getProduct().getPaymentAmount().add(interest));
         saveHistory(subscription, TransactionType.TERMINATE, interest, "중도 해지");
-        logEventPublisher.service("상품 해지: subscriptionId=" + subscription.getId() + ", interest=" + interest);
+        logEventPublisher.subscription("상품 해지: subscriptionId=" + subscription.getId() + ", interest=" + interest);
         return toResponse(subscription);
     }
 
