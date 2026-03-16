@@ -1,0 +1,79 @@
+package com.hana8.hanaro.service;
+
+import com.hana8.hanaro.service.AccountService;
+import com.hana8.hanaro.dto.AuthResponse;
+import com.hana8.hanaro.dto.LoginRequest;
+import com.hana8.hanaro.dto.SignUpRequest;
+import com.hana8.hanaro.entity.User;
+import com.hana8.hanaro.repository.UserRepository;
+import com.hana8.hanaro.common.enums.Role;
+import com.hana8.hanaro.common.exception.BusinessException;
+import com.hana8.hanaro.common.exception.ErrorCode;
+import com.hana8.hanaro.security.JwtProvider;
+import com.hana8.hanaro.common.logging.LogEventPublisher;
+import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
+    private final AccountService accountService;
+    private final LogEventPublisher logEventPublisher;
+
+    @Transactional
+    public void signUp(SignUpRequest request) {
+        validateDuplication(request);
+
+        User user = User.builder()
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .nickname(request.nickname())
+                .phoneNumber(request.phoneNumber())
+                .role(Role.ROLE_USER)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        User saved = userRepository.save(user);
+        accountService.createFreeAccount(saved);
+        logEventPublisher.user("회원가입: " + saved.getEmail());
+    }
+
+    @Transactional(readOnly = true)
+    public AuthResponse login(LoginRequest request) {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+        } catch (BadCredentialsException e) {
+            throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
+        }
+
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        String token = jwtProvider.createToken(user.getEmail(), user.getRole().name());
+        logEventPublisher.user("로그인: " + user.getEmail());
+        return new AuthResponse(token, "Bearer");
+    }
+
+    private void validateDuplication(SignUpRequest request) {
+        if (userRepository.existsByEmail(request.email())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+        }
+        if (userRepository.existsByNickname(request.nickname())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+        if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_PHONE);
+        }
+    }
+}

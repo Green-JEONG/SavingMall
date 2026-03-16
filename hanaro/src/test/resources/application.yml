@@ -1,0 +1,28 @@
+spring:
+  test:
+    database:
+      replace: none
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=USER,TRANSACTION
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  sql:
+    init:
+      mode: never
+
+app:
+  security:
+    admin:
+      username: hanaro
+      password: 12345678
+      nickname: admin
+    jwt:
+      secret: your-very-long-256-bit-secret-key-for-hanaro-service-2026
+      access-token-expiration-ms: 3600000
+  upload:
+    root-path: src/test/resources/upload

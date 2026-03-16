@@ -1,0 +1,42 @@
+package com.hana8.hanaro.controller;
+
+import com.hana8.hanaro.dto.SubscriptionResponse;
+import com.hana8.hanaro.service.SubscriptionService;
+import com.hana8.hanaro.dto.UserSummaryResponse;
+import com.hana8.hanaro.service.UserService;
+import com.hana8.hanaro.common.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/admin/users")
+@RequiredArgsConstructor
+public class AdminUserController {
+
+    private final UserService userService;
+    private final SubscriptionService subscriptionService;
+
+    @Operation(summary = "회원 목록 조회")
+    @GetMapping
+    public ApiResponse<List<UserSummaryResponse>> users() {
+        return ApiResponse.ok(userService.getAllUsers());
+    }
+
+    @Operation(summary = "회원별 가입 내역 조회")
+    @GetMapping("/{userId}/subscriptions")
+    public ApiResponse<List<SubscriptionResponse>> userSubscriptions(@PathVariable Long userId) {
+        return ApiResponse.ok(subscriptionService.subscriptionsByUser(userId));
+    }
+
+    @Operation(summary = "만기 처리")
+    @PostMapping("/maturity")
+    public ApiResponse<Integer> processMaturity() {
+        return ApiResponse.ok(subscriptionService.processMaturedSubscriptions());
+    }
+}
