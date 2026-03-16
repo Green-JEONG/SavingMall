@@ -46,4 +46,10 @@ public class User {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    public void syncAdmin(String encodedPassword, String nickname) {
+        this.password = encodedPassword;
+        this.nickname = nickname;
+        this.role = Role.ROLE_ADMIN;
+    }
 }

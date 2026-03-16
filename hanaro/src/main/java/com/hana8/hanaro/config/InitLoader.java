@@ -23,15 +23,21 @@ public class InitLoader implements CommandLineRunner {
         if (adminEmail == null || adminEmail.isBlank()) {
             return;
         }
-        if (!userRepository.existsByEmail(adminEmail)) {
-            userRepository.save(User.builder()
-                    .email(adminEmail)
-                    .password(passwordEncoder.encode(securityProperties.getAdmin().getPassword()))
-                    .nickname(securityProperties.getAdmin().getNickname())
-                    .phoneNumber("01099998888")
-                    .role(Role.ROLE_ADMIN)
-                    .createdAt(LocalDateTime.now())
-                    .build());
-        }
+        String encodedPassword = passwordEncoder.encode(securityProperties.getAdmin().getPassword());
+        userRepository.findByEmail(adminEmail)
+                .ifPresentOrElse(
+                        existingAdmin -> {
+                            existingAdmin.syncAdmin(encodedPassword, securityProperties.getAdmin().getNickname());
+                            userRepository.save(existingAdmin);
+                        },
+                        () -> userRepository.save(User.builder()
+                                .email(adminEmail)
+                                .password(encodedPassword)
+                                .nickname(securityProperties.getAdmin().getNickname())
+                                .phoneNumber("01099998888")
+                                .role(Role.ROLE_ADMIN)
+                                .createdAt(LocalDateTime.now())
+                                .build())
+                );
     }
 }
