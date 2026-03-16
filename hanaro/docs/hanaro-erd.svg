@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="760" viewBox="0 0 1320 760">
+  <style>
+    .title { font: 700 26px Arial, sans-serif; fill: #14324a; }
+    .box { fill: #f8fbfd; stroke: #2b5d7d; stroke-width: 2; rx: 10; ry: 10; }
+    .head { fill: #d9ecf7; stroke: #2b5d7d; stroke-width: 2; }
+    .name { font: 700 18px Arial, sans-serif; fill: #14324a; }
+    .field { font: 14px Consolas, monospace; fill: #1f2933; }
+    .rel { stroke: #406882; stroke-width: 2.5; fill: none; }
+    .label { font: 13px Arial, sans-serif; fill: #406882; }
+  </style>
+
+  <text x="40" y="42" class="title">Hanaro ERD</text>
+
+  <g transform="translate(40 80)">
+    <rect class="box" width="250" height="210"/>
+    <rect class="head" width="250" height="42"/>
+    <text x="18" y="28" class="name">user</text>
+    <text x="18" y="68" class="field">PK  id BIGINT</text>
+    <text x="18" y="92" class="field">UQ  email VARCHAR(100)</text>
+    <text x="18" y="116" class="field">password VARCHAR(255)</text>
+    <text x="18" y="140" class="field">UQ  nickname VARCHAR(50)</text>
+    <text x="18" y="164" class="field">UQ  phoneNumber VARCHAR(20)</text>
+    <text x="18" y="188" class="field">role ENUM(ROLE_ADMIN, ROLE_USER)</text>
+    <text x="18" y="212" class="field">createdAt DATETIME</text>
+  </g>
+
+  <g transform="translate(360 80)">
+    <rect class="box" width="280" height="210"/>
+    <rect class="head" width="280" height="42"/>
+    <text x="18" y="28" class="name">account</text>
+    <text x="18" y="68" class="field">PK  id BIGINT</text>
+    <text x="18" y="92" class="field">UQ  accountNumber VARCHAR(11)</text>
+    <text x="18" y="116" class="field">accountNumberFormatted VARCHAR(255)</text>
+    <text x="18" y="140" class="field">FK  user_id BIGINT</text>
+    <text x="18" y="164" class="field">balance DECIMAL(18,2)</text>
+    <text x="18" y="188" class="field">accountType VARCHAR(30)</text>
+  </g>
+
+  <g transform="translate(700 80)">
+    <rect class="box" width="300" height="235"/>
+    <rect class="head" width="300" height="42"/>
+    <text x="18" y="28" class="name">product</text>
+    <text x="18" y="68" class="field">PK  id BIGINT</text>
+    <text x="18" y="92" class="field">UQ  name VARCHAR(100)</text>
+    <text x="18" y="116" class="field">type ENUM(DEPOSIT, SAVINGS)</text>
+    <text x="18" y="140" class="field">paymentAmount DECIMAL(18,2)</text>
+    <text x="18" y="164" class="field">savingsCycle ENUM(MONTHLY, WEEKLY)</text>
+    <text x="18" y="188" class="field">periodMonths INT</text>
+    <text x="18" y="212" class="field">maturityRate DECIMAL(5,2)</text>
+    <text x="18" y="236" class="field">terminationRate DECIMAL(5,2)</text>
+    <text x="18" y="260" class="field">imagePath VARCHAR(255)</text>
+  </g>
+
+  <g transform="translate(250 390)">
+    <rect class="box" width="360" height="240"/>
+    <rect class="head" width="360" height="42"/>
+    <text x="18" y="28" class="name">subscription</text>
+    <text x="18" y="68" class="field">PK  id BIGINT</text>
+    <text x="18" y="92" class="field">FK  user_id BIGINT</text>
+    <text x="18" y="116" class="field">FK  product_id BIGINT</text>
+    <text x="18" y="140" class="field">FK  account_id BIGINT</text>
+    <text x="18" y="164" class="field">joinedAt DATE</text>
+    <text x="18" y="188" class="field">maturityAt DATE</text>
+    <text x="18" y="212" class="field">status ENUM(ACTIVE, MATURED, TERMINATED)</text>
+    <text x="18" y="236" class="field">accumulatedInterest DECIMAL(18,2)</text>
+  </g>
+
+  <g transform="translate(720 410)">
+    <rect class="box" width="320" height="190"/>
+    <rect class="head" width="320" height="42"/>
+    <text x="18" y="28" class="name">transaction</text>
+    <text x="18" y="68" class="field">PK  id BIGINT</text>
+    <text x="18" y="92" class="field">FK  subscription_id BIGINT</text>
+    <text x="18" y="116" class="field">type ENUM(SUBSCRIBE, TRANSFER, TERMINATE)</text>
+    <text x="18" y="140" class="field">amount DECIMAL(18,2)</text>
+    <text x="18" y="164" class="field">description VARCHAR(300)</text>
+    <text x="18" y="188" class="field">createdAt DATETIME</text>
+  </g>
+
+  <path class="rel" d="M290 185 L360 185"/>
+  <text x="308" y="175" class="label">1:N</text>
+
+  <path class="rel" d="M180 290 L180 390 L360 390"/>
+  <text x="192" y="366" class="label">1:N</text>
+
+  <path class="rel" d="M850 315 L850 390 L610 390"/>
+  <text x="792" y="366" class="label">1:N</text>
+
+  <path class="rel" d="M500 290 L500 390"/>
+  <text x="512" y="356" class="label">1:N</text>
+
+  <path class="rel" d="M610 510 L720 510"/>
+  <text x="646" y="500" class="label">1:N</text>
+</svg>

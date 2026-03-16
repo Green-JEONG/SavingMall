@@ -1,10 +1,10 @@
 package com.hana8.hanaro.service;
 
 import com.hana8.hanaro.dto.UserSummaryResponse;
-import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.repository.UserRepository;
 import com.hana8.hanaro.common.exception.BusinessException;
 import com.hana8.hanaro.common.exception.ErrorCode;
+import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.security.SecurityUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,14 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserSummaryResponse> getAllUsers() {
-        return userRepository.findAll().stream()
+    public List<UserSummaryResponse> getAllUsers(String keyword) {
+        List<User> users = keyword == null || keyword.isBlank()
+                ? userRepository.findAll()
+                : userRepository.findByEmailContainingIgnoreCaseOrNicknameContainingIgnoreCaseOrPhoneNumberContaining(
+                        keyword, keyword, keyword
+                );
+
+        return users.stream()
                 .map(user -> new UserSummaryResponse(user.getId(), user.getEmail(), user.getNickname(), user.getPhoneNumber(), user.getRole().name()))
                 .toList();
     }

@@ -63,7 +63,7 @@ class SubscriptionServiceTest {
         Account account = account(1L, user, BigDecimal.ZERO);
         given(userService.currentUser()).willReturn(user);
         given(productService.findProduct(1L)).willReturn(product);
-        given(accountService.findByAccountNumber("12345678901")).willReturn(account);
+        given(accountService.createProductAccount(user, "12345678901", "SAVINGS")).willReturn(account);
         given(subscriptionRepository.save(any(Subscription.class))).willAnswer(invocation -> {
             Subscription source = invocation.getArgument(0);
             return Subscription.builder()
@@ -144,6 +144,32 @@ class SubscriptionServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.INSUFFICIENT_BALANCE);
+    }
+
+    @Test
+    void givenOtherUsersAccount_whenTransfer_thenForbiddenExceptionIsThrown() {
+        User user = user(1L, "user@test.com");
+        User otherUser = user(2L, "other@test.com");
+        Account subscriptionAccount = account(1L, user, BigDecimal.ZERO);
+        Subscription subscription = Subscription.builder()
+                .id(12L)
+                .user(user)
+                .product(product(1L, "예금", BigDecimal.valueOf(1000000), 12, BigDecimal.valueOf(3.5), BigDecimal.valueOf(1.2)))
+                .account(subscriptionAccount)
+                .joinedAt(LocalDate.now())
+                .maturityAt(LocalDate.now().plusMonths(12))
+                .status(SubscriptionStatus.ACTIVE)
+                .accumulatedInterest(BigDecimal.ZERO)
+                .build();
+        Account otherUsersAccount = account(2L, otherUser, BigDecimal.valueOf(50000));
+        given(userService.currentUser()).willReturn(user);
+        given(subscriptionRepository.findById(12L)).willReturn(Optional.of(subscription));
+        given(accountService.findByAccountNumber("12345678901")).willReturn(otherUsersAccount);
+
+        assertThatThrownBy(() -> subscriptionService.transfer(new TransferRequest(12L, BigDecimal.valueOf(5000), "12345678901")))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.FORBIDDEN);
     }
 
     @Test

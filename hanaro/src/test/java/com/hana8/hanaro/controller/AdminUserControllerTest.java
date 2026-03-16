@@ -36,13 +36,24 @@ class AdminUserControllerTest {
 
     @Test
     void users() throws Exception {
-        when(userService.getAllUsers()).thenReturn(List.of(new UserSummaryResponse(
+        when(userService.getAllUsers(null)).thenReturn(List.of(new UserSummaryResponse(
                 1L, "u@test.com", "nick", "01012345678", "ROLE_USER"
         )));
 
         mockMvc.perform(get("/api/admin/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value(1));
+    }
+
+    @Test
+    void usersWithKeyword() throws Exception {
+        when(userService.getAllUsers("nick")).thenReturn(List.of(new UserSummaryResponse(
+                1L, "u@test.com", "nick", "01012345678", "ROLE_USER"
+        )));
+
+        mockMvc.perform(get("/api/admin/users").param("keyword", "nick"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].nickname").value("nick"));
     }
 
     @Test

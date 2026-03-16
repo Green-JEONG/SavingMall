@@ -6,6 +6,7 @@ import com.hana8.hanaro.service.ProductService;
 import com.hana8.hanaro.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +25,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class AdminProductController {
 
     private final ProductService productService;
+
+    @Operation(summary = "관리자 상품 목록 조회")
+    @GetMapping
+    public ApiResponse<List<ProductResponse>> getAll() {
+        return ApiResponse.ok(productService.getAll());
+    }
 
     @Operation(summary = "관리자 상품 등록")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

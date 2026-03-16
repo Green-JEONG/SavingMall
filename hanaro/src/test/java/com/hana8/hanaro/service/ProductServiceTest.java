@@ -98,6 +98,24 @@ class ProductServiceTest {
                 .isEqualTo(ErrorCode.PRODUCT_NOT_FOUND);
     }
 
+    @Test
+    void givenDepositRequestWithSavingsCycle_whenCreate_thenInvalidProductRequestExceptionIsThrown() {
+        ProductRequest request = new ProductRequest(
+                "예금 상품",
+                ProductType.DEPOSIT,
+                BigDecimal.valueOf(500000),
+                SavingsCycle.MONTHLY,
+                12,
+                BigDecimal.valueOf(3.20),
+                BigDecimal.valueOf(1.10)
+        );
+
+        assertThatThrownBy(() -> productService.create(request, null))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.INVALID_PRODUCT_REQUEST);
+    }
+
     private ProductRequest productRequest() {
         return new ProductRequest(
                 "적금 상품",

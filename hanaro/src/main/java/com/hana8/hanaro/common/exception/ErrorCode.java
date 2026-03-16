@@ -24,6 +24,7 @@ public enum ErrorCode {
     DUPLICATE_ACCOUNT(HttpStatus.CONFLICT, "ACCOUNT_409", "이미 사용 중인 계좌번호입니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH_401", "아이디 또는 비밀번호가 올바르지 않습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH_401_TOKEN", "유효하지 않은 토큰입니다."),
+    INVALID_PRODUCT_REQUEST(HttpStatus.BAD_REQUEST, "PRODUCT_400", "상품 입력값이 상품 유형과 일치하지 않습니다."),
     INSUFFICIENT_BALANCE(HttpStatus.BAD_REQUEST, "ACCOUNT_400_BALANCE", "잔액이 부족합니다."),
     INVALID_SUBSCRIPTION_STATUS(HttpStatus.BAD_REQUEST, "SUBSCRIPTION_400_STATUS", "가입 상태가 유효하지 않습니다.");
 

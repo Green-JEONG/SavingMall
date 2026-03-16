@@ -69,11 +69,23 @@ class UserServiceTest {
                 user("user2@test.com", "tester2", "01012340002")
         ));
 
-        List<UserSummaryResponse> result = userService.getAllUsers();
+        List<UserSummaryResponse> result = userService.getAllUsers(null);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).email()).isEqualTo("user1@test.com");
         assertThat(result.get(1).role()).isEqualTo("ROLE_USER");
+    }
+
+    @Test
+    void givenKeyword_whenGetAllUsers_thenFilteredUsersAreReturned() {
+        given(userRepository.findByEmailContainingIgnoreCaseOrNicknameContainingIgnoreCaseOrPhoneNumberContaining(
+                "nick", "nick", "nick"
+        )).willReturn(List.of(user("user1@test.com", "nick-one", "01012340001")));
+
+        List<UserSummaryResponse> result = userService.getAllUsers("nick");
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).nickname()).isEqualTo("nick-one");
     }
 
     private User user(String email, String nickname, String phoneNumber) {

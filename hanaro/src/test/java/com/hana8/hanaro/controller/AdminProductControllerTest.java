@@ -17,6 +17,7 @@ import com.hana8.hanaro.service.ProductService;
 import com.hana8.hanaro.common.enums.ProductType;
 import com.hana8.hanaro.common.enums.SavingsCycle;
 import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +39,15 @@ class AdminProductControllerTest {
 
     @MockitoBean
     private ProductService productService;
+
+    @Test
+    void getAll() throws Exception {
+        when(productService.getAll()).thenReturn(List.of(productResponse()));
+
+        mockMvc.perform(get("/api/admin/products"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].id").value(1));
+    }
 
     @Test
     void create() throws Exception {

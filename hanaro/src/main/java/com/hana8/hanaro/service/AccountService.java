@@ -22,12 +22,24 @@ public class AccountService {
     @Transactional
     public Account createFreeAccount(User user) {
         String accountNumber = generateUniqueAccountNumber();
+        return createAccount(user, accountNumber, "FREE");
+    }
+
+    @Transactional
+    public Account createProductAccount(User user, String accountNumber, String accountType) {
+        if (accountRepository.existsByAccountNumber(accountNumber)) {
+            throw new BusinessException(ErrorCode.DUPLICATE_ACCOUNT);
+        }
+        return createAccount(user, accountNumber, accountType);
+    }
+
+    private Account createAccount(User user, String accountNumber, String accountType) {
         Account account = Account.builder()
                 .accountNumber(accountNumber)
                 .accountNumberFormatted(AccountNumberFormatter.format(accountNumber))
                 .user(user)
                 .balance(BigDecimal.ZERO)
-                .accountType("FREE")
+                .accountType(accountType)
                 .build();
         return accountRepository.save(account);
     }

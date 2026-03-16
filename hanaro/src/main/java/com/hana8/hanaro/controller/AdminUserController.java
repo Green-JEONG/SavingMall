@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,10 +23,10 @@ public class AdminUserController {
     private final UserService userService;
     private final SubscriptionService subscriptionService;
 
-    @Operation(summary = "회원 목록 조회")
+    @Operation(summary = "회원 목록 조회 및 검색")
     @GetMapping
-    public ApiResponse<List<UserSummaryResponse>> users() {
-        return ApiResponse.ok(userService.getAllUsers());
+    public ApiResponse<List<UserSummaryResponse>> users(@RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(userService.getAllUsers(keyword));
     }
 
     @Operation(summary = "회원별 가입 내역 조회")

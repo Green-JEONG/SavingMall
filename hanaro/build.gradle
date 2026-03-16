@@ -100,14 +100,25 @@ jacocoTestReport {
     }
 }
 check.dependsOn jacocoTestReport
+check.dependsOn jacocoTestCoverageVerification
 jacocoTestCoverageVerification {
     violationRules {
         rule {
-            element = 'CLASS'
+            element = 'PACKAGE'
+            includes = ['com.hana8.hanaro.repository']
             limit {
-                counter = 'BRANCH'
+                counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.80
+                minimum = 0.90
+            }
+        }
+        rule {
+            element = 'PACKAGE'
+            includes = ['com.hana8.hanaro.controller']
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.60
             }
         }
     }

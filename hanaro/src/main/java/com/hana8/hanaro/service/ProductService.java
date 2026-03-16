@@ -23,6 +23,7 @@ public class ProductService {
 
     @Transactional
     public ProductResponse create(ProductRequest request, MultipartFile image) {
+        validateRequest(request);
         String imagePath = fileStorageService.save(image);
         Product product = Product.builder()
                 .name(request.name())
@@ -53,6 +54,7 @@ public class ProductService {
 
     @Transactional
     public ProductResponse update(Long productId, ProductRequest request, MultipartFile image) {
+        validateRequest(request);
         Product product = findProduct(productId);
         String imagePath = image == null || image.isEmpty() ? product.getImagePath() : fileStorageService.save(image);
         product.update(
@@ -79,6 +81,16 @@ public class ProductService {
     public Product findProduct(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+    }
+
+    private void validateRequest(ProductRequest request) {
+        boolean invalidDeposit = request.type() == com.hana8.hanaro.common.enums.ProductType.DEPOSIT
+                && request.savingsCycle() != null;
+        boolean invalidSavings = request.type() == com.hana8.hanaro.common.enums.ProductType.SAVINGS
+                && request.savingsCycle() == null;
+        if (invalidDeposit || invalidSavings) {
+            throw new BusinessException(ErrorCode.INVALID_PRODUCT_REQUEST);
+        }
     }
 
     private ProductResponse toResponse(Product product) {

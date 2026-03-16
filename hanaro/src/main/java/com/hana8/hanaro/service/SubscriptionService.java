@@ -43,7 +43,7 @@ public class SubscriptionService {
     public SubscriptionResponse subscribe(SubscribeRequest request) {
         User user = userService.currentUser();
         Product product = productService.findProduct(request.productId());
-        Account account = accountService.findByAccountNumber(request.accountNumber());
+        Account account = accountService.createProductAccount(user, request.accountNumber(), product.getType().name());
 
         Subscription subscription = Subscription.builder()
                 .user(user)
@@ -57,7 +57,8 @@ public class SubscriptionService {
 
         Subscription saved = subscriptionRepository.save(subscription);
         saveHistory(saved, TransactionType.SUBSCRIBE, product.getPaymentAmount(), "상품 가입");
-        logEventPublisher.service("상품 가입: user=" + user.getEmail() + ", product=" + product.getName());
+        logEventPublisher.service("상품 가입: user=" + user.getEmail() + ", product=" + product.getName()
+                + ", account=" + account.getAccountNumberFormatted());
         return toResponse(saved);
     }
 
@@ -95,6 +96,9 @@ public class SubscriptionService {
         }
 
         Account fromAccount = accountService.findByAccountNumber(request.fromAccountNumber());
+        if (!fromAccount.getUser().getId().equals(user.getId())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
         if (fromAccount.getBalance().compareTo(request.amount()) < 0) {
             throw new BusinessException(ErrorCode.INSUFFICIENT_BALANCE);
         }
