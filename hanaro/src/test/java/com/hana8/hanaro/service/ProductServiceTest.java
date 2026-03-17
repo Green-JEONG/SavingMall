@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 
 import com.hana8.hanaro.common.enums.ProductType;
 import com.hana8.hanaro.common.enums.SavingsCycle;
-import com.hana8.hanaro.common.logging.LogEventPublisher;
 import com.hana8.hanaro.dto.ProductRequestDTO;
 import com.hana8.hanaro.dto.ProductResponseDTO;
 import com.hana8.hanaro.entity.Product;
@@ -32,8 +31,6 @@ class ProductServiceTest {
     private ProductRepository productRepository;
     @Mock
     private FileStorageService fileStorageService;
-    @Mock
-    private LogEventPublisher logEventPublisher;
 
     @InjectMocks
     private ProductService productService;

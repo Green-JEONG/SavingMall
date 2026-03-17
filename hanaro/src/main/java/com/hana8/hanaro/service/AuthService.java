@@ -1,7 +1,6 @@
 package com.hana8.hanaro.service;
 
 import com.hana8.hanaro.common.enums.Role;
-import com.hana8.hanaro.common.logging.LogEventPublisher;
 import com.hana8.hanaro.dto.AuthResponseDTO;
 import com.hana8.hanaro.dto.LoginRequest;
 import com.hana8.hanaro.dto.SignUpRequestDTO;
@@ -10,6 +9,8 @@ import com.hana8.hanaro.mapper.AuthMapper;
 import com.hana8.hanaro.repository.UserRepository;
 import com.hana8.hanaro.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,12 +24,13 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private static final Logger USER_LOGGER = LoggerFactory.getLogger("audit.user");
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final AccountService accountService;
-    private final LogEventPublisher logEventPublisher;
 
     @Transactional
     public void signUp(SignUpRequestDTO request) {
@@ -38,7 +40,7 @@ public class AuthService {
 
         User saved = userRepository.save(user);
         accountService.createFreeAccount(saved);
-        logEventPublisher.user("회원가입: " + saved.getEmail());
+        USER_LOGGER.info("회원가입: {}", saved.getEmail());
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +55,7 @@ public class AuthService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         String token = jwtUtil.createAccessToken(user.getEmail(), user.getRole().name());
-        logEventPublisher.user("로그인: " + user.getEmail());
+        USER_LOGGER.info("로그인: {}", user.getEmail());
         return AuthMapper.toAuthResponseDTO(token);
     }
 

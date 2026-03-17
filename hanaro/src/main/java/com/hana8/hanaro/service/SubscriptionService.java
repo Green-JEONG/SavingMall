@@ -16,7 +16,6 @@ import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.service.UserService;
 import com.hana8.hanaro.common.enums.SubscriptionStatus;
 import com.hana8.hanaro.common.enums.TransactionType;
-import com.hana8.hanaro.common.logging.LogEventPublisher;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -24,6 +23,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,12 +34,14 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class SubscriptionService {
 
+    private static final Logger SUBSCRIPTION_LOGGER = LoggerFactory.getLogger("audit.subscription");
+    private static final Logger SERVICE_LOGGER = LoggerFactory.getLogger("audit.service");
+
     private final SubscriptionRepository subscriptionRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
     private final ProductService productService;
     private final AccountService accountService;
     private final UserService userService;
-    private final LogEventPublisher logEventPublisher;
 
     @Transactional
     public SubscriptionResponseDTO subscribe(SubscribeRequestDTO request) {
@@ -58,8 +61,8 @@ public class SubscriptionService {
 
         Subscription saved = subscriptionRepository.save(subscription);
         saveHistory(saved, TransactionType.SUBSCRIBE, product.getPaymentAmount(), "상품 가입");
-        logEventPublisher.subscription("상품 가입: user=" + user.getEmail() + ", product=" + product.getName()
-                + ", account=" + account.getAccountNumberFormatted());
+        SUBSCRIPTION_LOGGER.info("상품 가입: user={}, product={}, account={}",
+                user.getEmail(), product.getName(), account.getAccountNumberFormatted());
         return SubscriptionMapper.toSubscriptionResponseDTO(saved);
     }
 
@@ -84,7 +87,7 @@ public class SubscriptionService {
         subscription.terminate(interest);
         subscription.getAccount().addBalance(subscription.getProduct().getPaymentAmount().add(interest));
         saveHistory(subscription, TransactionType.TERMINATE, interest, "중도 해지");
-        logEventPublisher.subscription("상품 해지: subscriptionId=" + subscription.getId() + ", interest=" + interest);
+        SUBSCRIPTION_LOGGER.info("상품 해지: subscriptionId={}, interest={}", subscription.getId(), interest);
         return SubscriptionMapper.toSubscriptionResponseDTO(subscription);
     }
 
@@ -107,7 +110,7 @@ public class SubscriptionService {
         fromAccount.subtractBalance(request.amount());
         subscription.getAccount().addBalance(request.amount());
         saveHistory(subscription, TransactionType.TRANSFER, request.amount(), "상품 계좌 이체");
-        logEventPublisher.service("이체: subscriptionId=" + subscription.getId() + ", amount=" + request.amount());
+        SERVICE_LOGGER.info("이체: subscriptionId={}, amount={}", subscription.getId(), request.amount());
     }
 
     @Transactional

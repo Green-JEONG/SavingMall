@@ -5,9 +5,10 @@ import com.hana8.hanaro.dto.ProductResponseDTO;
 import com.hana8.hanaro.entity.Product;
 import com.hana8.hanaro.mapper.ProductMapper;
 import com.hana8.hanaro.repository.ProductRepository;
-import com.hana8.hanaro.common.logging.LogEventPublisher;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +19,10 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class ProductService {
 
+    private static final Logger PRODUCT_LOGGER = LoggerFactory.getLogger("audit.product");
+
     private final ProductRepository productRepository;
     private final FileStorageService fileStorageService;
-    private final LogEventPublisher logEventPublisher;
 
     @Transactional
     public ProductResponseDTO create(ProductRequestDTO request, MultipartFile image) {
@@ -29,7 +31,7 @@ public class ProductService {
         Product product = ProductMapper.toEntity(request, imagePath);
 
         Product saved = productRepository.save(product);
-        logEventPublisher.product("상품 생성: id=" + saved.getId() + ", name=" + saved.getName());
+        PRODUCT_LOGGER.info("상품 생성: id={}, name={}", saved.getId(), saved.getName());
         return ProductMapper.toProductResponseDTO(saved);
     }
 
@@ -59,7 +61,7 @@ public class ProductService {
                 request.terminationRate(),
                 imagePath
         );
-        logEventPublisher.product("상품 수정: id=" + product.getId() + ", name=" + product.getName());
+        PRODUCT_LOGGER.info("상품 수정: id={}, name={}", product.getId(), product.getName());
         return ProductMapper.toProductResponseDTO(product);
     }
 
@@ -67,7 +69,7 @@ public class ProductService {
     public void delete(Long productId) {
         Product product = findProduct(productId);
         productRepository.delete(product);
-        logEventPublisher.product("상품 삭제: id=" + productId);
+        PRODUCT_LOGGER.info("상품 삭제: id={}", productId);
     }
 
     public Product findProduct(Long productId) {

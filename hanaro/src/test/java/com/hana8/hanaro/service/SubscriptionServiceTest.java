@@ -10,7 +10,6 @@ import com.hana8.hanaro.common.enums.ProductType;
 import com.hana8.hanaro.common.enums.Role;
 import com.hana8.hanaro.common.enums.SubscriptionStatus;
 import com.hana8.hanaro.common.enums.TransactionType;
-import com.hana8.hanaro.common.logging.LogEventPublisher;
 import com.hana8.hanaro.dto.SubscribeRequestDTO;
 import com.hana8.hanaro.dto.SubscriptionResponseDTO;
 import com.hana8.hanaro.dto.TransferRequestDTO;
@@ -50,8 +49,6 @@ class SubscriptionServiceTest {
     private AccountService accountService;
     @Mock
     private UserService userService;
-    @Mock
-    private LogEventPublisher logEventPublisher;
 
     @InjectMocks
     private SubscriptionService subscriptionService;

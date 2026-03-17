@@ -3,7 +3,6 @@ package com.hana8.hanaro.service;
 import com.hana8.hanaro.entity.Account;
 import com.hana8.hanaro.repository.AccountRepository;
 import com.hana8.hanaro.entity.User;
-import com.hana8.hanaro.common.util.AccountNumberFormatter;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class AccountService {
     private Account createAccount(User user, String accountNumber, String accountType) {
         Account account = Account.builder()
                 .accountNumber(accountNumber)
-                .accountNumberFormatted(AccountNumberFormatter.format(accountNumber))
+                .accountNumberFormatted(formatAccountNumber(accountNumber))
                 .user(user)
                 .balance(BigDecimal.ZERO)
                 .accountType(accountType)
@@ -56,5 +55,12 @@ public class AccountService {
             account = String.format("%011d", Math.abs(secureRandom.nextLong()) % 100_000_000_000L);
         } while (accountRepository.existsByAccountNumber(account));
         return account;
+    }
+
+    private String formatAccountNumber(String accountNumber) {
+        if (accountNumber == null || accountNumber.length() != 11) {
+            return accountNumber;
+        }
+        return accountNumber.substring(0, 3) + "-" + accountNumber.substring(3, 7) + "-" + accountNumber.substring(7);
     }
 }

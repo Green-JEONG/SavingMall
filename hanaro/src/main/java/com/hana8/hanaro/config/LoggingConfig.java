@@ -1,4 +1,4 @@
-package com.hana8.hanaro.common.logging;
+package com.hana8.hanaro.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -7,13 +7,53 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
-@Component
-public class ApiRequestLoggingFilter extends OncePerRequestFilter {
+@Configuration
+public class LoggingConfig {
+
+    @Bean
+    ApiRequestLoggingFilter apiRequestLoggingFilter() {
+        return new ApiRequestLoggingFilter(new AuditLogPublisher());
+    }
+}
+
+final class AuditLogPublisher {
+
+    private static final Logger APP_LOGGER = LoggerFactory.getLogger(AuditLogPublisher.class);
+    private static final Logger USER_LOGGER = LoggerFactory.getLogger("audit.user");
+    private static final Logger PRODUCT_LOGGER = LoggerFactory.getLogger("audit.product");
+    private static final Logger SERVICE_LOGGER = LoggerFactory.getLogger("audit.service");
+    private static final Logger SUBSCRIPTION_LOGGER = LoggerFactory.getLogger("audit.subscription");
+
+    void application(String message) {
+        APP_LOGGER.info(message);
+    }
+
+    void user(String message) {
+        USER_LOGGER.info(message);
+    }
+
+    void product(String message) {
+        PRODUCT_LOGGER.info(message);
+    }
+
+    void service(String message) {
+        SERVICE_LOGGER.info(message);
+    }
+
+    void subscription(String message) {
+        SUBSCRIPTION_LOGGER.info(message);
+    }
+}
+
+final class ApiRequestLoggingFilter extends OncePerRequestFilter {
 
     private static final int MAX_PAYLOAD_LENGTH = 1000;
     private static final Pattern SECRET_FIELD = Pattern.compile(
@@ -21,10 +61,10 @@ public class ApiRequestLoggingFilter extends OncePerRequestFilter {
             Pattern.CASE_INSENSITIVE
     );
 
-    private final LogEventPublisher logEventPublisher;
+    private final AuditLogPublisher logPublisher;
 
-    public ApiRequestLoggingFilter(LogEventPublisher logEventPublisher) {
-        this.logEventPublisher = logEventPublisher;
+    ApiRequestLoggingFilter(AuditLogPublisher logPublisher) {
+        this.logPublisher = logPublisher;
     }
 
     @Override
@@ -48,22 +88,22 @@ public class ApiRequestLoggingFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
         if (uri.startsWith("/api/auth") || uri.startsWith("/api/admin/users")) {
-            logEventPublisher.user(message);
+            logPublisher.user(message);
             return;
         }
         if (uri.startsWith("/api/admin/products") || uri.startsWith("/api/user/products")) {
-            logEventPublisher.product(message);
+            logPublisher.product(message);
             return;
         }
         if (uri.contains("/terminate") || ("POST".equals(request.getMethod()) && uri.startsWith("/api/user/subscriptions"))) {
-            logEventPublisher.subscription(message);
+            logPublisher.subscription(message);
             return;
         }
         if (uri.contains("/transfer") || uri.startsWith("/api/user/subscriptions")) {
-            logEventPublisher.service(message);
+            logPublisher.service(message);
             return;
         }
-        logEventPublisher.application(message);
+        logPublisher.application(message);
     }
 
     private String payload(ContentCachingRequestWrapper request) {

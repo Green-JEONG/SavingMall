@@ -7,7 +7,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.hana8.hanaro.common.enums.Role;
-import com.hana8.hanaro.common.logging.LogEventPublisher;
 import com.hana8.hanaro.dto.AuthResponseDTO;
 import com.hana8.hanaro.dto.LoginRequest;
 import com.hana8.hanaro.dto.SignUpRequestDTO;
@@ -41,8 +40,6 @@ class AuthServiceTest {
     private JwtUtil jwtUtil;
     @Mock
     private AccountService accountService;
-    @Mock
-    private LogEventPublisher logEventPublisher;
 
     @InjectMocks
     private AuthService authService;
