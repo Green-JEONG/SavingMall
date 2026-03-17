@@ -3,10 +3,11 @@ package com.hana8.hanaro.service;
 import com.hana8.hanaro.dto.UserSummaryResponse;
 import com.hana8.hanaro.repository.UserRepository;
 import com.hana8.hanaro.entity.User;
-import com.hana8.hanaro.security.SecurityUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,7 +20,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User currentUser() {
-        return userRepository.findByEmail(SecurityUtil.currentUserEmail())
+        return userRepository.findByEmail(currentUserEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
     }
 
@@ -34,5 +35,13 @@ public class UserService {
         return users.stream()
                 .map(user -> new UserSummaryResponse(user.getId(), user.getEmail(), user.getNickname(), user.getPhoneNumber(), user.getRole().name()))
                 .toList();
+    }
+
+    private String currentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+        }
+        return authentication.getName();
     }
 }
