@@ -15,7 +15,7 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
     show-sql: true
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
 
     properties:
       hibernate:
@@ -49,11 +49,8 @@ spring:
   messages:
     basename: messages/message
 
-app:
-  upload:
-    root-path: src/main/resources/static/upload
-
 upload:
+  path: src/main/resources/static/upload
   secure: src/main/upload/secure
 
 management:
@@ -63,6 +60,7 @@ management:
     web:
       exposure:
         include: "*"
+        exclude: env,beans
   endpoint:
     metrics:
       access: read_only
@@ -74,5 +72,7 @@ management:
 springdoc:
   swagger-ui:
     enabled: true
+    path: /swagger.html
   api-docs:
     enabled: true
+    path: /hana8/api-docs

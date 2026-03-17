@@ -22,9 +22,9 @@ class SecurityIntegrationTest {
     @Test
     void givenNoToken_whenRequestAdminApi_thenUnauthorizedErrorResponseIsReturned() throws Exception {
         mockMvc.perform(get("/api/admin/products"))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isForbidden())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.error").value("UNAUTHORIZED"))
-                .andExpect(jsonPath("$.message").value("인증이 필요합니다."));
+                .andExpect(jsonPath("$.error").value("FORBIDDEN"))
+                .andExpect(jsonPath("$.message").value("접근 권한이 없습니다."));
     }
 }
