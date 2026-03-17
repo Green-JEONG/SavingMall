@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=USER,TRANSACTION
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    defer-datasource-initialization: false
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        jdbc:
+          batch_size: 50
+          time_zone: Asia/Seoul
+        order_inserts: true
+        order_updates: true
+        format_sql: true
+        use_sql_comments: true
+  sql:
+    init:
+      mode: never
+
+upload:
+  path: src/test/resources/upload
+  secure: src/test/resources/secure
+
+jwt:
+  secret: test-secret-key-for-hanaro-application-tests-2026
+  access-token-expiration-ms: 3600000
