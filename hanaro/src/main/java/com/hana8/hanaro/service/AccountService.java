@@ -3,14 +3,14 @@ package com.hana8.hanaro.service;
 import com.hana8.hanaro.entity.Account;
 import com.hana8.hanaro.repository.AccountRepository;
 import com.hana8.hanaro.entity.User;
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.common.exception.ErrorCode;
 import com.hana8.hanaro.common.util.AccountNumberFormatter;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class AccountService {
     @Transactional
     public Account createProductAccount(User user, String accountNumber, String accountType) {
         if (accountRepository.existsByAccountNumber(accountNumber)) {
-            throw new BusinessException(ErrorCode.DUPLICATE_ACCOUNT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 계좌번호입니다.");
         }
         return createAccount(user, accountNumber, accountType);
     }
@@ -47,7 +47,7 @@ public class AccountService {
     @Transactional(readOnly = true)
     public Account findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "계좌를 찾을 수 없습니다."));
     }
 
     private String generateUniqueAccountNumber() {

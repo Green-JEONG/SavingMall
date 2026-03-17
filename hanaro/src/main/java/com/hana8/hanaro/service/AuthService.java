@@ -7,18 +7,18 @@ import com.hana8.hanaro.dto.SignUpRequest;
 import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.repository.UserRepository;
 import com.hana8.hanaro.common.enums.Role;
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.common.exception.ErrorCode;
 import com.hana8.hanaro.security.JwtProvider;
 import com.hana8.hanaro.common.logging.LogEventPublisher;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -54,11 +54,11 @@ public class AuthService {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         } catch (BadCredentialsException e) {
-            throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         String token = jwtProvider.createToken(user.getEmail(), user.getRole().name());
         logEventPublisher.user("로그인: " + user.getEmail());
@@ -67,13 +67,13 @@ public class AuthService {
 
     private void validateDuplication(SignUpRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다.");
         }
         if (userRepository.existsByNickname(request.nickname())) {
-            throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
         }
         if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new BusinessException(ErrorCode.DUPLICATE_PHONE);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 전화번호입니다.");
         }
     }
 }

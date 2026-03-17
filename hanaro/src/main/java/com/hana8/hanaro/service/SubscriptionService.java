@@ -15,8 +15,6 @@ import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.service.UserService;
 import com.hana8.hanaro.common.enums.SubscriptionStatus;
 import com.hana8.hanaro.common.enums.TransactionType;
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.common.exception.ErrorCode;
 import com.hana8.hanaro.common.logging.LogEventPublisher;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,8 +23,10 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -73,10 +73,10 @@ public class SubscriptionService {
         User user = userService.currentUser();
         Subscription subscription = findById(subscriptionId);
         if (!subscription.getUser().getId().equals(user.getId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
         }
         if (subscription.getStatus() != SubscriptionStatus.ACTIVE) {
-            throw new BusinessException(ErrorCode.INVALID_SUBSCRIPTION_STATUS);
+            throw new IllegalArgumentException("가입 상태가 유효하지 않습니다.");
         }
 
         BigDecimal interest = calculateInterest(subscription, subscription.getProduct().getTerminationRate());
@@ -92,15 +92,15 @@ public class SubscriptionService {
         User user = userService.currentUser();
         Subscription subscription = findById(request.subscriptionId());
         if (!subscription.getUser().getId().equals(user.getId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
         }
 
         Account fromAccount = accountService.findByAccountNumber(request.fromAccountNumber());
         if (!fromAccount.getUser().getId().equals(user.getId())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
         }
         if (fromAccount.getBalance().compareTo(request.amount()) < 0) {
-            throw new BusinessException(ErrorCode.INSUFFICIENT_BALANCE);
+            throw new IllegalArgumentException("잔액이 부족합니다.");
         }
 
         fromAccount.subtractBalance(request.amount());
@@ -154,7 +154,7 @@ public class SubscriptionService {
 
     private Subscription findById(Long subscriptionId) {
         return subscriptionRepository.findById(subscriptionId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "가입 내역을 찾을 수 없습니다."));
     }
 
     private SubscriptionResponse toResponse(Subscription subscription) {

@@ -3,7 +3,7 @@ spring:
     name: hanaro
 
   config:
-    import: optional:classpath:security.yml
+    import: classpath:security.yml
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -58,7 +58,7 @@ upload:
 
 management:
   server:
-    port: 8080
+    port: 9001
   endpoints:
     web:
       exposure:

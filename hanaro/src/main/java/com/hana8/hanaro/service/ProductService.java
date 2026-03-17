@@ -4,14 +4,14 @@ import com.hana8.hanaro.dto.ProductRequest;
 import com.hana8.hanaro.dto.ProductResponse;
 import com.hana8.hanaro.entity.Product;
 import com.hana8.hanaro.repository.ProductRepository;
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.common.exception.ErrorCode;
 import com.hana8.hanaro.common.logging.LogEventPublisher;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -80,7 +80,7 @@ public class ProductService {
 
     public Product findProduct(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."));
     }
 
     private void validateRequest(ProductRequest request) {
@@ -89,7 +89,7 @@ public class ProductService {
         boolean invalidSavings = request.type() == com.hana8.hanaro.common.enums.ProductType.SAVINGS
                 && request.savingsCycle() == null;
         if (invalidDeposit || invalidSavings) {
-            throw new BusinessException(ErrorCode.INVALID_PRODUCT_REQUEST);
+            throw new IllegalArgumentException("상품 입력값이 상품 유형과 일치하지 않습니다.");
         }
     }
 

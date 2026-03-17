@@ -1,7 +1,5 @@
 package com.hana8.hanaro.security;
 
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
-            } catch (BusinessException ignored) {
+            } catch (RuntimeException ignored) {
                 SecurityContextHolder.clearContext();
             }
         }
