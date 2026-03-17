@@ -1,4 +1,4 @@
-package com.hana8.hanaro.security;
+package com.hana8.hanaro.service;
 
 import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.repository.UserRepository;

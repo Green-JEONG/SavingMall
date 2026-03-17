@@ -1,14 +1,13 @@
 package com.hana8.hanaro.service;
 
-import com.hana8.hanaro.service.AccountService;
+import com.hana8.hanaro.common.enums.Role;
+import com.hana8.hanaro.common.logging.LogEventPublisher;
 import com.hana8.hanaro.dto.AuthResponse;
 import com.hana8.hanaro.dto.LoginRequest;
 import com.hana8.hanaro.dto.SignUpRequest;
 import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.repository.UserRepository;
-import com.hana8.hanaro.common.enums.Role;
-import com.hana8.hanaro.security.JwtProvider;
-import com.hana8.hanaro.common.logging.LogEventPublisher;
+import com.hana8.hanaro.security.JwtUtil;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +26,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
+    private final JwtUtil jwtUtil;
     private final AccountService accountService;
     private final LogEventPublisher logEventPublisher;
 
@@ -60,7 +59,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-        String token = jwtProvider.createToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.createAccessToken(user.getEmail(), user.getRole().name());
         logEventPublisher.user("로그인: " + user.getEmail());
         return new AuthResponse(token, "Bearer");
     }

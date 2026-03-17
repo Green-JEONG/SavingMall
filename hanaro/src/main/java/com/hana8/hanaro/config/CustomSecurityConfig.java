@@ -1,17 +1,17 @@
 package com.hana8.hanaro.config;
 
-import java.util.List;
-
-import com.hana8.hanaro.security.CustomAccessDeniedHandler;
-import com.hana8.hanaro.security.CustomAuthenticationEntryPoint;
-import com.hana8.hanaro.security.CustomUserDetailsService;
+import com.hana8.hanaro.security.handler.CustomAccessDeniedHandler;
+import com.hana8.hanaro.service.CustomUserDetailsService;
 import com.hana8.hanaro.security.JwtAuthenticationFilter;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -34,7 +34,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class CustomSecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
@@ -45,7 +44,12 @@ public class CustomSecurityConfig {
                 .cors(config -> config.configurationSource(corsConfigurationSource()))
                 .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(config -> config
-                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write("{\"error\":\"UNAUTHORIZED\",\"message\":\"인증이 필요합니다.\"}");
+                        })
                         .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(

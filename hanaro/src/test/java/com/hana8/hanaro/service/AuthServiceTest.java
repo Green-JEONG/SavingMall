@@ -7,15 +7,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.hana8.hanaro.common.enums.Role;
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.common.exception.ErrorCode;
 import com.hana8.hanaro.common.logging.LogEventPublisher;
 import com.hana8.hanaro.dto.AuthResponse;
 import com.hana8.hanaro.dto.LoginRequest;
 import com.hana8.hanaro.dto.SignUpRequest;
 import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.repository.UserRepository;
-import com.hana8.hanaro.security.JwtProvider;
+import com.hana8.hanaro.security.JwtUtil;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,10 +21,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -38,7 +38,7 @@ class AuthServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
     @Mock
-    private JwtProvider jwtProvider;
+    private JwtUtil jwtUtil;
     @Mock
     private AccountService accountService;
     @Mock
@@ -69,14 +69,14 @@ class AuthServiceTest {
     }
 
     @Test
-    void givenDuplicateEmail_whenSignUp_thenDuplicateEmailExceptionIsThrown() {
+    void givenDuplicateEmail_whenSignUp_thenConflictIsThrown() {
         SignUpRequest request = new SignUpRequest("user@test.com", "password", "tester", "01012345678");
         given(userRepository.existsByEmail("user@test.com")).willReturn(true);
 
         assertThatThrownBy(() -> authService.signUp(request))
-                .isInstanceOf(BusinessException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.DUPLICATE_EMAIL);
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting("status")
+                .isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test
@@ -93,7 +93,7 @@ class AuthServiceTest {
         given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .willReturn(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         given(userRepository.findByEmail("user@test.com")).willReturn(java.util.Optional.of(user));
-        given(jwtProvider.createToken("user@test.com", "ROLE_USER")).willReturn("access-token");
+        given(jwtUtil.createAccessToken("user@test.com", "ROLE_USER")).willReturn("access-token");
 
         AuthResponse response = authService.login(request);
 
@@ -102,14 +102,14 @@ class AuthServiceTest {
     }
 
     @Test
-    void givenInvalidCredentials_whenLogin_thenInvalidCredentialExceptionIsThrown() {
+    void givenInvalidCredentials_whenLogin_thenUnauthorizedIsThrown() {
         LoginRequest request = new LoginRequest("user@test.com", "wrong-password");
         given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .willThrow(new BadCredentialsException("bad credentials"));
 
         assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(BusinessException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.INVALID_CREDENTIALS);
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting("status")
+                .isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }
