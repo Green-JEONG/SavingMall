@@ -1,6 +1,6 @@
 package com.hana8.hanaro.dto;
 
-public record UserSummaryResponse(
+public record UserSummaryResponseDTO(
         Long id,
         String email,
         String nickname,

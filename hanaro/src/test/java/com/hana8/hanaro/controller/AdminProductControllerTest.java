@@ -11,8 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana8.hanaro.dto.ProductRequest;
-import com.hana8.hanaro.dto.ProductResponse;
+import com.hana8.hanaro.dto.ProductRequestDTO;
+import com.hana8.hanaro.dto.ProductResponseDTO;
 import com.hana8.hanaro.service.ProductService;
 import com.hana8.hanaro.common.enums.ProductType;
 import com.hana8.hanaro.common.enums.SavingsCycle;
@@ -53,9 +53,9 @@ class AdminProductControllerTest {
 
     @Test
     void create() throws Exception {
-        ProductRequest request = new ProductRequest("상품", ProductType.SAVINGS, BigDecimal.valueOf(10000),
+        ProductRequestDTO request = new ProductRequestDTO("상품", ProductType.SAVINGS, BigDecimal.valueOf(10000),
                 SavingsCycle.MONTHLY, 12, BigDecimal.valueOf(4.0), BigDecimal.valueOf(1.5));
-        when(productService.create(any(ProductRequest.class), any())).thenReturn(productResponse());
+        when(productService.create(any(ProductRequestDTO.class), any())).thenReturn(productResponse());
 
         MockMultipartFile requestPart = new MockMultipartFile(
                 "request", "request", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
@@ -76,9 +76,9 @@ class AdminProductControllerTest {
 
     @Test
     void update() throws Exception {
-        ProductRequest request = new ProductRequest("상품", ProductType.SAVINGS, BigDecimal.valueOf(10000),
+        ProductRequestDTO request = new ProductRequestDTO("상품", ProductType.SAVINGS, BigDecimal.valueOf(10000),
                 SavingsCycle.MONTHLY, 12, BigDecimal.valueOf(4.0), BigDecimal.valueOf(1.5));
-        when(productService.update(eq(1L), any(ProductRequest.class), any())).thenReturn(productResponse());
+        when(productService.update(eq(1L), any(ProductRequestDTO.class), any())).thenReturn(productResponse());
 
         MockMultipartFile requestPart = new MockMultipartFile(
                 "request", "request", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
@@ -103,8 +103,8 @@ class AdminProductControllerTest {
                 .andExpect(jsonPath("$.success").value(true));
     }
 
-    private ProductResponse productResponse() {
-        return new ProductResponse(1L, "상품", ProductType.SAVINGS, BigDecimal.valueOf(10000), SavingsCycle.MONTHLY,
+    private ProductResponseDTO productResponse() {
+        return new ProductResponseDTO(1L, "상품", ProductType.SAVINGS, BigDecimal.valueOf(10000), SavingsCycle.MONTHLY,
                 12, BigDecimal.valueOf(4.0), BigDecimal.valueOf(1.5), null);
     }
 }

@@ -8,9 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana8.hanaro.dto.AuthResponse;
+import com.hana8.hanaro.dto.AuthResponseDTO;
 import com.hana8.hanaro.dto.LoginRequest;
-import com.hana8.hanaro.dto.SignUpRequest;
+import com.hana8.hanaro.dto.SignUpRequestDTO;
 import com.hana8.hanaro.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ class AuthControllerTest {
     @Test
     void signUp() throws Exception {
         doNothing().when(authService).signUp(any());
-        SignUpRequest request = new SignUpRequest("a@test.com", "12345678", "nick", "01012345678");
+        SignUpRequestDTO request = new SignUpRequestDTO("a@test.com", "12345678", "nick", "01012345678");
 
         mockMvc.perform(post("/api/auth/signup")
                         .contentType("application/json")
@@ -44,7 +44,7 @@ class AuthControllerTest {
 
     @Test
     void login() throws Exception {
-        when(authService.login(any(LoginRequest.class))).thenReturn(new AuthResponse("token", "Bearer"));
+        when(authService.login(any(LoginRequest.class))).thenReturn(new AuthResponseDTO("token", "Bearer"));
         LoginRequest request = new LoginRequest("a@test.com", "12345678");
 
         mockMvc.perform(post("/api/auth/login")

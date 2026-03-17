@@ -5,7 +5,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
-public record TransferRequest(
+public record TransferRequestDTO(
         @NotNull(message = "가입 ID는 필수입니다.")
         Long subscriptionId,
 

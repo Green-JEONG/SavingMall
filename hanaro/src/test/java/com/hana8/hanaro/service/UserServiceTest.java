@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 import com.hana8.hanaro.common.enums.Role;
-import com.hana8.hanaro.dto.UserSummaryResponse;
+import com.hana8.hanaro.dto.UserSummaryResponseDTO;
 import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -69,7 +69,7 @@ class UserServiceTest {
                 user("user2@test.com", "tester2", "01012340002")
         ));
 
-        List<UserSummaryResponse> result = userService.getAllUsers(null);
+        List<UserSummaryResponseDTO> result = userService.getAllUsers(null);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).email()).isEqualTo("user1@test.com");
@@ -82,7 +82,7 @@ class UserServiceTest {
                 "nick", "nick", "nick"
         )).willReturn(List.of(user("user1@test.com", "nick-one", "01012340001")));
 
-        List<UserSummaryResponse> result = userService.getAllUsers("nick");
+        List<UserSummaryResponseDTO> result = userService.getAllUsers("nick");
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).nickname()).isEqualTo("nick-one");

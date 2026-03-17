@@ -9,9 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana8.hanaro.dto.SubscribeRequest;
-import com.hana8.hanaro.dto.SubscriptionResponse;
-import com.hana8.hanaro.dto.TransferRequest;
+import com.hana8.hanaro.dto.SubscribeRequestDTO;
+import com.hana8.hanaro.dto.SubscriptionResponseDTO;
+import com.hana8.hanaro.dto.TransferRequestDTO;
 import com.hana8.hanaro.service.SubscriptionService;
 import com.hana8.hanaro.common.enums.SubscriptionStatus;
 import java.math.BigDecimal;
@@ -40,21 +40,21 @@ class UserSubscriptionControllerTest {
 
     @Test
     void subscribe() throws Exception {
-        when(subscriptionService.subscribe(any())).thenReturn(new SubscriptionResponse(
+        when(subscriptionService.subscribe(any())).thenReturn(new SubscriptionResponseDTO(
                 1L, "상품", "123-4567-8901", SubscriptionStatus.ACTIVE,
                 LocalDate.now(), LocalDate.now().plusMonths(12), BigDecimal.ZERO
         ));
 
         mockMvc.perform(post("/api/user/subscriptions")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(new SubscribeRequest(1L, "12345678901"))))
+                        .content(objectMapper.writeValueAsString(new SubscribeRequestDTO(1L, "12345678901"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(1));
     }
 
     @Test
     void mySubscriptions() throws Exception {
-        when(subscriptionService.mySubscriptions()).thenReturn(List.of(new SubscriptionResponse(
+        when(subscriptionService.mySubscriptions()).thenReturn(List.of(new SubscriptionResponseDTO(
                 1L, "상품", "123-4567-8901", SubscriptionStatus.ACTIVE,
                 LocalDate.now(), LocalDate.now().plusMonths(12), BigDecimal.ZERO
         )));
@@ -66,7 +66,7 @@ class UserSubscriptionControllerTest {
 
     @Test
     void terminate() throws Exception {
-        when(subscriptionService.terminate(1L)).thenReturn(new SubscriptionResponse(
+        when(subscriptionService.terminate(1L)).thenReturn(new SubscriptionResponseDTO(
                 1L, "상품", "123-4567-8901", SubscriptionStatus.TERMINATED,
                 LocalDate.now(), LocalDate.now().plusMonths(12), BigDecimal.valueOf(100)
         ));
@@ -78,7 +78,7 @@ class UserSubscriptionControllerTest {
 
     @Test
     void transfer() throws Exception {
-        doNothing().when(subscriptionService).transfer(any(TransferRequest.class));
+        doNothing().when(subscriptionService).transfer(any(TransferRequestDTO.class));
 
         mockMvc.perform(post("/api/user/subscriptions/transfer")
                         .contentType("application/json")

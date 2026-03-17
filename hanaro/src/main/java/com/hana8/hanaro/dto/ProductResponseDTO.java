@@ -4,7 +4,7 @@ import com.hana8.hanaro.common.enums.ProductType;
 import com.hana8.hanaro.common.enums.SavingsCycle;
 import java.math.BigDecimal;
 
-public record ProductResponse(
+public record ProductResponseDTO(
         Long id,
         String name,
         ProductType type,

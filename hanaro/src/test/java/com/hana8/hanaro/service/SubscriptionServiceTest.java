@@ -11,9 +11,9 @@ import com.hana8.hanaro.common.enums.Role;
 import com.hana8.hanaro.common.enums.SubscriptionStatus;
 import com.hana8.hanaro.common.enums.TransactionType;
 import com.hana8.hanaro.common.logging.LogEventPublisher;
-import com.hana8.hanaro.dto.SubscribeRequest;
-import com.hana8.hanaro.dto.SubscriptionResponse;
-import com.hana8.hanaro.dto.TransferRequest;
+import com.hana8.hanaro.dto.SubscribeRequestDTO;
+import com.hana8.hanaro.dto.SubscriptionResponseDTO;
+import com.hana8.hanaro.dto.TransferRequestDTO;
 import com.hana8.hanaro.entity.Account;
 import com.hana8.hanaro.entity.Product;
 import com.hana8.hanaro.entity.Subscription;
@@ -78,7 +78,7 @@ class SubscriptionServiceTest {
                     .build();
         });
 
-        SubscriptionResponse response = subscriptionService.subscribe(new SubscribeRequest(1L, "12345678901"));
+        SubscriptionResponseDTO response = subscriptionService.subscribe(new SubscribeRequestDTO(1L, "12345678901"));
 
         assertThat(response.id()).isEqualTo(10L);
         assertThat(response.productName()).isEqualTo("적금");
@@ -108,7 +108,7 @@ class SubscriptionServiceTest {
         given(userService.currentUser()).willReturn(user);
         given(subscriptionRepository.findById(11L)).willReturn(Optional.of(subscription));
 
-        SubscriptionResponse response = subscriptionService.terminate(11L);
+        SubscriptionResponseDTO response = subscriptionService.terminate(11L);
         BigDecimal expectedInterest = calculateInterest(subscription.getJoinedAt(), product.getPaymentAmount(), product.getTerminationRate());
 
         assertThat(response.status()).isEqualTo(SubscriptionStatus.TERMINATED);
@@ -140,7 +140,7 @@ class SubscriptionServiceTest {
         given(subscriptionRepository.findById(12L)).willReturn(Optional.of(subscription));
         given(accountService.findByAccountNumber("12345678901")).willReturn(fromAccount);
 
-        assertThatThrownBy(() -> subscriptionService.transfer(new TransferRequest(12L, BigDecimal.valueOf(5000), "12345678901")))
+        assertThatThrownBy(() -> subscriptionService.transfer(new TransferRequestDTO(12L, BigDecimal.valueOf(5000), "12345678901")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("잔액이 부족합니다.");
     }
@@ -165,7 +165,7 @@ class SubscriptionServiceTest {
         given(subscriptionRepository.findById(12L)).willReturn(Optional.of(subscription));
         given(accountService.findByAccountNumber("12345678901")).willReturn(otherUsersAccount);
 
-        assertThatThrownBy(() -> subscriptionService.transfer(new TransferRequest(12L, BigDecimal.valueOf(5000), "12345678901")))
+        assertThatThrownBy(() -> subscriptionService.transfer(new TransferRequestDTO(12L, BigDecimal.valueOf(5000), "12345678901")))
                 .isInstanceOf(ResponseStatusException.class)
                 .extracting("status")
                 .isEqualTo(HttpStatus.FORBIDDEN);

@@ -1,7 +1,7 @@
 package com.hana8.hanaro.controller;
 
-import com.hana8.hanaro.dto.ProductRequest;
-import com.hana8.hanaro.dto.ProductResponse;
+import com.hana8.hanaro.dto.ProductRequestDTO;
+import com.hana8.hanaro.dto.ProductResponseDTO;
 import com.hana8.hanaro.service.ProductService;
 import com.hana8.hanaro.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,14 +30,14 @@ public class AdminProductController {
 
     @Operation(summary = "관리자 상품 목록 조회")
     @GetMapping
-    public ApiResponse<List<ProductResponse>> getAll() {
+    public ApiResponse<List<ProductResponseDTO>> getAll() {
         return ApiResponse.ok(productService.getAll());
     }
 
     @Operation(summary = "관리자 상품 등록")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<ProductResponse> create(
-            @Valid @RequestPart("request") ProductRequest request,
+    public ApiResponse<ProductResponseDTO> create(
+            @Valid @RequestPart("request") ProductRequestDTO request,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         return ApiResponse.ok(productService.create(request, image));
@@ -45,15 +45,15 @@ public class AdminProductController {
 
     @Operation(summary = "관리자 상품 조회")
     @GetMapping("/{productId}")
-    public ApiResponse<ProductResponse> getOne(@PathVariable Long productId) {
+    public ApiResponse<ProductResponseDTO> getOne(@PathVariable Long productId) {
         return ApiResponse.ok(productService.getOne(productId));
     }
 
     @Operation(summary = "관리자 상품 수정")
     @PutMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<ProductResponse> update(
+    public ApiResponse<ProductResponseDTO> update(
             @PathVariable Long productId,
-            @Valid @RequestPart("request") ProductRequest request,
+            @Valid @RequestPart("request") ProductRequestDTO request,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         return ApiResponse.ok(productService.update(productId, request, image));

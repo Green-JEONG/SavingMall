@@ -4,7 +4,7 @@ import com.hana8.hanaro.common.enums.SubscriptionStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record SubscriptionResponse(
+public record SubscriptionResponseDTO(
         Long id,
         String productName,
         String accountNumber,

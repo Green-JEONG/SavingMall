@@ -1,6 +1,6 @@
 package com.hana8.hanaro.controller;
 
-import com.hana8.hanaro.dto.ProductResponse;
+import com.hana8.hanaro.dto.ProductResponseDTO;
 import com.hana8.hanaro.service.ProductService;
 import com.hana8.hanaro.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,13 +22,13 @@ public class UserProductController {
 
     @Operation(summary = "상품 목록")
     @GetMapping
-    public ApiResponse<List<ProductResponse>> getAll() {
+    public ApiResponse<List<ProductResponseDTO>> getAll() {
         return ApiResponse.ok(productService.getAll());
     }
 
     @Operation(summary = "상품 상세")
     @GetMapping("/{productId}")
-    public ApiResponse<ProductResponse> getOne(@PathVariable Long productId) {
+    public ApiResponse<ProductResponseDTO> getOne(@PathVariable Long productId) {
         return ApiResponse.ok(productService.getOne(productId));
     }
 }

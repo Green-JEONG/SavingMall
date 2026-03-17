@@ -1,8 +1,8 @@
 package com.hana8.hanaro.controller;
 
-import com.hana8.hanaro.dto.SubscriptionResponse;
+import com.hana8.hanaro.dto.SubscriptionResponseDTO;
 import com.hana8.hanaro.service.SubscriptionService;
-import com.hana8.hanaro.dto.UserSummaryResponse;
+import com.hana8.hanaro.dto.UserSummaryResponseDTO;
 import com.hana8.hanaro.service.UserService;
 import com.hana8.hanaro.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,13 +27,13 @@ public class AdminUserController {
 
     @Operation(summary = "회원 목록 조회 및 검색")
     @GetMapping
-    public ApiResponse<List<UserSummaryResponse>> users(@RequestParam(required = false) String keyword) {
+    public ApiResponse<List<UserSummaryResponseDTO>> users(@RequestParam(required = false) String keyword) {
         return ApiResponse.ok(userService.getAllUsers(keyword));
     }
 
     @Operation(summary = "회원별 가입 내역 조회")
     @GetMapping("/{userId}/subscriptions")
-    public ApiResponse<List<SubscriptionResponse>> userSubscriptions(@PathVariable Long userId) {
+    public ApiResponse<List<SubscriptionResponseDTO>> userSubscriptions(@PathVariable Long userId) {
         return ApiResponse.ok(subscriptionService.subscriptionsByUser(userId));
     }
 

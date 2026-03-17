@@ -4,10 +4,11 @@ import com.hana8.hanaro.entity.Account;
 import com.hana8.hanaro.service.AccountService;
 import com.hana8.hanaro.entity.Product;
 import com.hana8.hanaro.service.ProductService;
-import com.hana8.hanaro.dto.SubscribeRequest;
-import com.hana8.hanaro.dto.SubscriptionResponse;
-import com.hana8.hanaro.dto.TransferRequest;
+import com.hana8.hanaro.dto.SubscribeRequestDTO;
+import com.hana8.hanaro.dto.SubscriptionResponseDTO;
+import com.hana8.hanaro.dto.TransferRequestDTO;
 import com.hana8.hanaro.entity.Subscription;
+import com.hana8.hanaro.mapper.SubscriptionMapper;
 import com.hana8.hanaro.repository.SubscriptionRepository;
 import com.hana8.hanaro.entity.TransactionHistory;
 import com.hana8.hanaro.repository.TransactionHistoryRepository;
@@ -40,7 +41,7 @@ public class SubscriptionService {
     private final LogEventPublisher logEventPublisher;
 
     @Transactional
-    public SubscriptionResponse subscribe(SubscribeRequest request) {
+    public SubscriptionResponseDTO subscribe(SubscribeRequestDTO request) {
         User user = userService.currentUser();
         Product product = productService.findProduct(request.productId());
         Account account = accountService.createProductAccount(user, request.accountNumber(), product.getType().name());
@@ -59,17 +60,17 @@ public class SubscriptionService {
         saveHistory(saved, TransactionType.SUBSCRIBE, product.getPaymentAmount(), "상품 가입");
         logEventPublisher.subscription("상품 가입: user=" + user.getEmail() + ", product=" + product.getName()
                 + ", account=" + account.getAccountNumberFormatted());
-        return toResponse(saved);
+        return SubscriptionMapper.toSubscriptionResponseDTO(saved);
     }
 
     @Transactional(readOnly = true)
-    public List<SubscriptionResponse> mySubscriptions() {
+    public List<SubscriptionResponseDTO> mySubscriptions() {
         User user = userService.currentUser();
-        return subscriptionRepository.findByUser(user).stream().map(this::toResponse).toList();
+        return subscriptionRepository.findByUser(user).stream().map(SubscriptionMapper::toSubscriptionResponseDTO).toList();
     }
 
     @Transactional
-    public SubscriptionResponse terminate(Long subscriptionId) {
+    public SubscriptionResponseDTO terminate(Long subscriptionId) {
         User user = userService.currentUser();
         Subscription subscription = findById(subscriptionId);
         if (!subscription.getUser().getId().equals(user.getId())) {
@@ -84,11 +85,11 @@ public class SubscriptionService {
         subscription.getAccount().addBalance(subscription.getProduct().getPaymentAmount().add(interest));
         saveHistory(subscription, TransactionType.TERMINATE, interest, "중도 해지");
         logEventPublisher.subscription("상품 해지: subscriptionId=" + subscription.getId() + ", interest=" + interest);
-        return toResponse(subscription);
+        return SubscriptionMapper.toSubscriptionResponseDTO(subscription);
     }
 
     @Transactional
-    public void transfer(TransferRequest request) {
+    public void transfer(TransferRequestDTO request) {
         User user = userService.currentUser();
         Subscription subscription = findById(request.subscriptionId());
         if (!subscription.getUser().getId().equals(user.getId())) {
@@ -127,11 +128,11 @@ public class SubscriptionService {
     }
 
     @Transactional(readOnly = true)
-    public List<SubscriptionResponse> subscriptionsByUser(Long userId) {
+    public List<SubscriptionResponseDTO> subscriptionsByUser(Long userId) {
         List<Subscription> all = subscriptionRepository.findAll();
         return all.stream()
                 .filter(subscription -> subscription.getUser().getId().equals(userId))
-                .map(this::toResponse)
+                .map(SubscriptionMapper::toSubscriptionResponseDTO)
                 .toList();
     }
 
@@ -157,15 +158,4 @@ public class SubscriptionService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "가입 내역을 찾을 수 없습니다."));
     }
 
-    private SubscriptionResponse toResponse(Subscription subscription) {
-        return new SubscriptionResponse(
-                subscription.getId(),
-                subscription.getProduct().getName(),
-                subscription.getAccount().getAccountNumberFormatted(),
-                subscription.getStatus(),
-                subscription.getJoinedAt(),
-                subscription.getMaturityAt(),
-                subscription.getAccumulatedInterest()
-        );
-    }
 }

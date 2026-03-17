@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
-public record ProductRequest(
+public record ProductRequestDTO(
         @NotBlank(message = "상품명은 필수입니다.")
         @Size(max = 100, message = "상품명은 100자를 초과할 수 없습니다.")
         String name,

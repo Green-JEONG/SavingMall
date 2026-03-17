@@ -1,8 +1,9 @@
 package com.hana8.hanaro.service;
 
-import com.hana8.hanaro.dto.UserSummaryResponse;
+import com.hana8.hanaro.dto.UserSummaryResponseDTO;
 import com.hana8.hanaro.repository.UserRepository;
 import com.hana8.hanaro.entity.User;
+import com.hana8.hanaro.mapper.UserMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserSummaryResponse> getAllUsers(String keyword) {
+    public List<UserSummaryResponseDTO> getAllUsers(String keyword) {
         List<User> users = keyword == null || keyword.isBlank()
                 ? userRepository.findAll()
                 : userRepository.findByEmailContainingIgnoreCaseOrNicknameContainingIgnoreCaseOrPhoneNumberContaining(
@@ -33,7 +34,7 @@ public class UserService {
                 );
 
         return users.stream()
-                .map(user -> new UserSummaryResponse(user.getId(), user.getEmail(), user.getNickname(), user.getPhoneNumber(), user.getRole().name()))
+                .map(UserMapper::toUserSummaryResponseDTO)
                 .toList();
     }
 

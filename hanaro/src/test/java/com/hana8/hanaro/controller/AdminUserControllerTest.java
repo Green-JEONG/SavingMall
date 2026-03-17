@@ -6,9 +6,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.hana8.hanaro.dto.SubscriptionResponse;
+import com.hana8.hanaro.dto.SubscriptionResponseDTO;
 import com.hana8.hanaro.service.SubscriptionService;
-import com.hana8.hanaro.dto.UserSummaryResponse;
+import com.hana8.hanaro.dto.UserSummaryResponseDTO;
 import com.hana8.hanaro.service.UserService;
 import com.hana8.hanaro.common.enums.SubscriptionStatus;
 import java.math.BigDecimal;
@@ -38,7 +38,7 @@ class AdminUserControllerTest {
 
     @Test
     void users() throws Exception {
-        when(userService.getAllUsers(null)).thenReturn(List.of(new UserSummaryResponse(
+        when(userService.getAllUsers(null)).thenReturn(List.of(new UserSummaryResponseDTO(
                 1L, "u@test.com", "nick", "01012345678", "ROLE_USER"
         )));
 
@@ -49,7 +49,7 @@ class AdminUserControllerTest {
 
     @Test
     void usersWithKeyword() throws Exception {
-        when(userService.getAllUsers("nick")).thenReturn(List.of(new UserSummaryResponse(
+        when(userService.getAllUsers("nick")).thenReturn(List.of(new UserSummaryResponseDTO(
                 1L, "u@test.com", "nick", "01012345678", "ROLE_USER"
         )));
 
@@ -60,7 +60,7 @@ class AdminUserControllerTest {
 
     @Test
     void userSubscriptions() throws Exception {
-        when(subscriptionService.subscriptionsByUser(1L)).thenReturn(List.of(new SubscriptionResponse(
+        when(subscriptionService.subscriptionsByUser(1L)).thenReturn(List.of(new SubscriptionResponseDTO(
                 1L, "상품", "123-4567-8901", SubscriptionStatus.ACTIVE,
                 LocalDate.now(), LocalDate.now().plusMonths(6), BigDecimal.ZERO
         )));

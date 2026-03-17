@@ -10,8 +10,8 @@ import static org.mockito.Mockito.verify;
 import com.hana8.hanaro.common.enums.ProductType;
 import com.hana8.hanaro.common.enums.SavingsCycle;
 import com.hana8.hanaro.common.logging.LogEventPublisher;
-import com.hana8.hanaro.dto.ProductRequest;
-import com.hana8.hanaro.dto.ProductResponse;
+import com.hana8.hanaro.dto.ProductRequestDTO;
+import com.hana8.hanaro.dto.ProductResponseDTO;
 import com.hana8.hanaro.entity.Product;
 import com.hana8.hanaro.repository.ProductRepository;
 import java.math.BigDecimal;
@@ -40,7 +40,7 @@ class ProductServiceTest {
 
     @Test
     void givenRequestAndImage_whenCreate_thenSavedProductIsReturned() {
-        ProductRequest request = productRequest();
+        ProductRequestDTO request = productRequest();
         MockMultipartFile image = new MockMultipartFile("image", "sample.png", "image/png", "img".getBytes());
         given(fileStorageService.save(image)).willReturn("/upload/sample.png");
         given(productRepository.save(any(Product.class))).willAnswer(invocation -> {
@@ -58,7 +58,7 @@ class ProductServiceTest {
                     .build();
         });
 
-        ProductResponse response = productService.create(request, image);
+        ProductResponseDTO response = productService.create(request, image);
 
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.name()).isEqualTo("적금 상품");
@@ -80,7 +80,7 @@ class ProductServiceTest {
                 .build();
         given(productRepository.findById(1L)).willReturn(Optional.of(product));
 
-        ProductResponse response = productService.update(1L, productRequest(), null);
+        ProductResponseDTO response = productService.update(1L, productRequest(), null);
 
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.imagePath()).isEqualTo("/upload/original.png");
@@ -100,7 +100,7 @@ class ProductServiceTest {
 
     @Test
     void givenDepositRequestWithSavingsCycle_whenCreate_thenInvalidProductRequestExceptionIsThrown() {
-        ProductRequest request = new ProductRequest(
+        ProductRequestDTO request = new ProductRequestDTO(
                 "예금 상품",
                 ProductType.DEPOSIT,
                 BigDecimal.valueOf(500000),
@@ -115,8 +115,8 @@ class ProductServiceTest {
                 .hasMessage("상품 입력값이 상품 유형과 일치하지 않습니다.");
     }
 
-    private ProductRequest productRequest() {
-        return new ProductRequest(
+    private ProductRequestDTO productRequest() {
+        return new ProductRequestDTO(
                 "적금 상품",
                 ProductType.SAVINGS,
                 BigDecimal.valueOf(200000),

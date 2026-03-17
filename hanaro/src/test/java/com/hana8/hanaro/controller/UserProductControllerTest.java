@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.hana8.hanaro.dto.ProductResponse;
+import com.hana8.hanaro.dto.ProductResponseDTO;
 import com.hana8.hanaro.service.ProductService;
 import com.hana8.hanaro.common.enums.ProductType;
 import java.math.BigDecimal;
@@ -32,7 +32,7 @@ class UserProductControllerTest {
     @Test
     void getAll() throws Exception {
         when(productService.getAll()).thenReturn(List.of(
-                new ProductResponse(1L, "p", ProductType.DEPOSIT, BigDecimal.TEN, null, 12,
+                new ProductResponseDTO(1L, "p", ProductType.DEPOSIT, BigDecimal.TEN, null, 12,
                         BigDecimal.valueOf(3), BigDecimal.ONE, null)
         ));
 
@@ -43,7 +43,7 @@ class UserProductControllerTest {
 
     @Test
     void getOne() throws Exception {
-        when(productService.getOne(1L)).thenReturn(new ProductResponse(1L, "p", ProductType.DEPOSIT, BigDecimal.TEN,
+        when(productService.getOne(1L)).thenReturn(new ProductResponseDTO(1L, "p", ProductType.DEPOSIT, BigDecimal.TEN,
                 null, 12, BigDecimal.valueOf(3), BigDecimal.ONE, null));
 
         mockMvc.perform(get("/api/user/products/1"))

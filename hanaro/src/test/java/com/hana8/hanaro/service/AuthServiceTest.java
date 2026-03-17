@@ -8,9 +8,9 @@ import static org.mockito.Mockito.verify;
 
 import com.hana8.hanaro.common.enums.Role;
 import com.hana8.hanaro.common.logging.LogEventPublisher;
-import com.hana8.hanaro.dto.AuthResponse;
+import com.hana8.hanaro.dto.AuthResponseDTO;
 import com.hana8.hanaro.dto.LoginRequest;
-import com.hana8.hanaro.dto.SignUpRequest;
+import com.hana8.hanaro.dto.SignUpRequestDTO;
 import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.repository.UserRepository;
 import com.hana8.hanaro.security.JwtUtil;
@@ -49,7 +49,7 @@ class AuthServiceTest {
 
     @Test
     void givenUniqueSignUpRequest_whenSignUp_thenUserIsSavedAndFreeAccountCreated() {
-        SignUpRequest request = new SignUpRequest("user@test.com", "password", "tester", "01012345678");
+        SignUpRequestDTO request = new SignUpRequestDTO("user@test.com", "password", "tester", "01012345678");
         given(passwordEncoder.encode("password")).willReturn("encoded-password");
         given(userRepository.save(any(User.class))).willAnswer(invocation -> invocation.getArgument(0));
 
@@ -70,7 +70,7 @@ class AuthServiceTest {
 
     @Test
     void givenDuplicateEmail_whenSignUp_thenConflictIsThrown() {
-        SignUpRequest request = new SignUpRequest("user@test.com", "password", "tester", "01012345678");
+        SignUpRequestDTO request = new SignUpRequestDTO("user@test.com", "password", "tester", "01012345678");
         given(userRepository.existsByEmail("user@test.com")).willReturn(true);
 
         assertThatThrownBy(() -> authService.signUp(request))
@@ -95,7 +95,7 @@ class AuthServiceTest {
         given(userRepository.findByEmail("user@test.com")).willReturn(java.util.Optional.of(user));
         given(jwtUtil.createAccessToken("user@test.com", "ROLE_USER")).willReturn("access-token");
 
-        AuthResponse response = authService.login(request);
+        AuthResponseDTO response = authService.login(request);
 
         assertThat(response.accessToken()).isEqualTo("access-token");
         assertThat(response.tokenType()).isEqualTo("Bearer");
