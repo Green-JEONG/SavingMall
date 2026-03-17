@@ -1,6 +1,5 @@
 package com.hana8.hanaro.security;
 
-import com.hana8.hanaro.config.SecurityProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -14,15 +13,12 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 public class JwtProvider {
 
-    private final SecurityProperties securityProperties;
-
-    public JwtProvider(SecurityProperties securityProperties) {
-        this.securityProperties = securityProperties;
-    }
+    private static final String JWT_SECRET = "your-very-long-256-bit-secret-key-for-hanaro-service-2026";
+    private static final long ACCESS_TOKEN_EXPIRATION_MS = 3_600_000L;
 
     public String createToken(String email, String role) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + securityProperties.getJwt().getAccessTokenExpirationMs());
+        Date expiry = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_MS);
 
         return Jwts.builder()
                 .subject(email)
@@ -50,6 +46,6 @@ public class JwtProvider {
     }
 
     private Key signingKey() {
-        return Keys.hmacShaKeyFor(securityProperties.getJwt().getSecret().getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
     }
 }
