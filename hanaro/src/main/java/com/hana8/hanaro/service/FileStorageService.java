@@ -17,7 +17,7 @@ public class FileStorageService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    @Value("${app.upload.root-path}")
+    @Value("${upload.path}")
     private String rootPath;
 
     public String save(MultipartFile file) {

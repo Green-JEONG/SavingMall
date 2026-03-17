@@ -9,8 +9,6 @@ import static org.mockito.Mockito.verify;
 
 import com.hana8.hanaro.common.enums.ProductType;
 import com.hana8.hanaro.common.enums.SavingsCycle;
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.common.exception.ErrorCode;
 import com.hana8.hanaro.common.logging.LogEventPublisher;
 import com.hana8.hanaro.dto.ProductRequest;
 import com.hana8.hanaro.dto.ProductResponse;
@@ -24,6 +22,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -93,9 +93,9 @@ class ProductServiceTest {
         given(productRepository.findById(99L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.delete(99L))
-                .isInstanceOf(BusinessException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.PRODUCT_NOT_FOUND);
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting("status")
+                .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -111,9 +111,8 @@ class ProductServiceTest {
         );
 
         assertThatThrownBy(() -> productService.create(request, null))
-                .isInstanceOf(BusinessException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.INVALID_PRODUCT_REQUEST);
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("상품 입력값이 상품 유형과 일치하지 않습니다.");
     }
 
     private ProductRequest productRequest() {

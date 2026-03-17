@@ -7,8 +7,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 import com.hana8.hanaro.common.enums.Role;
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.common.exception.ErrorCode;
 import com.hana8.hanaro.entity.Account;
 import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.repository.AccountRepository;
@@ -21,6 +19,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
@@ -63,8 +63,8 @@ class AccountServiceTest {
         given(accountRepository.findByAccountNumber("12345678901")).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> accountService.findByAccountNumber("12345678901"))
-                .isInstanceOf(BusinessException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.ACCOUNT_NOT_FOUND);
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting("status")
+                .isEqualTo(HttpStatus.NOT_FOUND);
     }
 }

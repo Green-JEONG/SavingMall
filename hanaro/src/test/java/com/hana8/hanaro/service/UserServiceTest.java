@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 import com.hana8.hanaro.common.enums.Role;
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.common.exception.ErrorCode;
 import com.hana8.hanaro.dto.UserSummaryResponse;
 import com.hana8.hanaro.entity.User;
 import com.hana8.hanaro.repository.UserRepository;
@@ -19,8 +17,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -57,9 +57,9 @@ class UserServiceTest {
         given(userRepository.findByEmail("missing@test.com")).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.currentUser())
-                .isInstanceOf(BusinessException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.USER_NOT_FOUND);
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting("status")
+                .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

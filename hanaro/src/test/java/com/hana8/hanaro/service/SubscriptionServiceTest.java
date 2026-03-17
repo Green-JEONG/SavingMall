@@ -10,8 +10,6 @@ import com.hana8.hanaro.common.enums.ProductType;
 import com.hana8.hanaro.common.enums.Role;
 import com.hana8.hanaro.common.enums.SubscriptionStatus;
 import com.hana8.hanaro.common.enums.TransactionType;
-import com.hana8.hanaro.common.exception.BusinessException;
-import com.hana8.hanaro.common.exception.ErrorCode;
 import com.hana8.hanaro.common.logging.LogEventPublisher;
 import com.hana8.hanaro.dto.SubscribeRequest;
 import com.hana8.hanaro.dto.SubscriptionResponse;
@@ -36,6 +34,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionServiceTest {
@@ -141,9 +141,8 @@ class SubscriptionServiceTest {
         given(accountService.findByAccountNumber("12345678901")).willReturn(fromAccount);
 
         assertThatThrownBy(() -> subscriptionService.transfer(new TransferRequest(12L, BigDecimal.valueOf(5000), "12345678901")))
-                .isInstanceOf(BusinessException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.INSUFFICIENT_BALANCE);
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("잔액이 부족합니다.");
     }
 
     @Test
@@ -167,9 +166,9 @@ class SubscriptionServiceTest {
         given(accountService.findByAccountNumber("12345678901")).willReturn(otherUsersAccount);
 
         assertThatThrownBy(() -> subscriptionService.transfer(new TransferRequest(12L, BigDecimal.valueOf(5000), "12345678901")))
-                .isInstanceOf(BusinessException.class)
-                .extracting("errorCode")
-                .isEqualTo(ErrorCode.FORBIDDEN);
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting("status")
+                .isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
