@@ -1,0 +1,73 @@
+### TransactionHistory entity HTTP tests
+### TransactionHistory 전용 조회 API는 없어서 이벤트가 생성되는 흐름을 간접 검증합니다.
+
+@baseUrl = http://localhost:8080
+@adminEmail = hanaro
+@adminPassword = 12345678
+@userEmail = user1@test.com
+@userPassword = 12345678
+@transactionAccountNumber = 30100010004
+
+### Admin 로그인
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+> {%
+client.global.set("admin_token", response.body.data.accessToken);
+%}
+
+### User 로그인
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+> {%
+client.global.set("user_token", response.body.data.accessToken);
+%}
+
+### TransactionHistory SUBSCRIBE 생성
+POST {{baseUrl}}/api/user/subscriptions
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "productId": 8,
+  "accountNumber": "{{transactionAccountNumber}}"
+}
+
+> {%
+client.global.set("tx_subscription_id", response.body.data.id);
+%}
+
+### TransactionHistory TRANSFER 생성
+POST {{baseUrl}}/api/user/subscriptions/transfer
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "subscriptionId": {{tx_subscription_id}},
+  "amount": 25000,
+  "fromAccountNumber": "12345678901"
+}
+
+### TransactionHistory TERMINATE 생성
+POST {{baseUrl}}/api/user/subscriptions/{{tx_subscription_id}}/terminate
+Authorization: Bearer {{user_token}}
+
+### TransactionHistory MATURED 생성
+POST {{baseUrl}}/api/admin/users/maturity
+Authorization: Bearer {{admin_token}}
+
+### TransactionHistory 간접 조회: 관리자 회원별 가입 상태 확인
+GET {{baseUrl}}/api/admin/users/2/subscriptions
+Authorization: Bearer {{admin_token}}
+

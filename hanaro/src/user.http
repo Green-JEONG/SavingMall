@@ -1,0 +1,58 @@
+### User entity HTTP tests
+### User 엔티티 관련 API: 회원가입, 로그인, 관리자 회원 조회
+
+@baseUrl = http://localhost:8080
+@adminEmail = hanaro
+@adminPassword = 12345678
+@signupEmail = entity-user-20260317@test.com
+@signupPassword = 12345678
+@signupNickname = entityUser0317
+@signupPhone = 01055551234
+
+### User 회원가입
+POST {{baseUrl}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "{{signupEmail}}",
+  "password": "{{signupPassword}}",
+  "nickname": "{{signupNickname}}",
+  "phoneNumber": "{{signupPhone}}"
+}
+
+### Admin 로그인
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+> {%
+    client.global.set("admin_token", response.body.data.accessToken);
+%}
+
+### User 목록 조회
+GET {{baseUrl}}/api/admin/users
+Authorization: Bearer {{admin_token}}
+
+### User 검색 조회
+GET {{baseUrl}}/api/admin/users?keyword=%ED%98%B8%EB%A1%9D%EC%9D%B4
+Authorization: Bearer {{admin_token}}
+
+### User별 가입 내역 조회
+GET {{baseUrl}}/api/admin/users/2/subscriptions
+Authorization: Bearer {{admin_token}}
+
+### User 비정상 테스트: 중복 회원가입
+POST {{baseUrl}}/api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "user1@test.com",
+  "password": "12345678",
+  "nickname": "중복닉네임",
+  "phoneNumber": "01077778888"
+}
+

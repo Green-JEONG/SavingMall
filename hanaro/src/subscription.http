@@ -1,0 +1,81 @@
+### Subscription entity HTTP tests
+### Subscription 엔티티 관련 API: 가입, 조회, 이체, 해지, 만기 처리
+
+@baseUrl = http://localhost:8080
+@adminEmail = hanaro
+@adminPassword = 12345678
+@userEmail = user1@test.com
+@userPassword = 12345678
+@newProductAccountNumber = 30100010001
+
+### Admin 로그인
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+> {%
+client.global.set("admin_token", response.body.data.accessToken);
+%}
+
+### User 로그인
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+> {%
+client.global.set("user_token", response.body.data.accessToken);
+%}
+
+### Subscription 가입
+POST {{baseUrl}}/api/user/subscriptions
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "accountNumber": "{{newProductAccountNumber}}"
+}
+
+> {%
+client.global.set("subscription_id", response.body.data.id);
+%}
+
+### Subscription 내 가입 내역 조회
+GET {{baseUrl}}/api/user/subscriptions
+Authorization: Bearer {{user_token}}
+
+### Subscription 이체
+POST {{baseUrl}}/api/user/subscriptions/transfer
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "subscriptionId": {{subscription_id}},
+  "amount": 50000,
+  "fromAccountNumber": "12345678901"
+}
+
+### Subscription 해지
+POST {{baseUrl}}/api/user/subscriptions/{{subscription_id}}/terminate
+Authorization: Bearer {{user_token}}
+
+### Subscription 관리자 회원별 조회
+GET {{baseUrl}}/api/admin/users/2/subscriptions
+Authorization: Bearer {{admin_token}}
+
+### Subscription 만기 처리
+POST {{baseUrl}}/api/admin/users/maturity
+Authorization: Bearer {{admin_token}}
+
+### Subscription 비정상 테스트: 존재하지 않는 가입 해지
+POST {{baseUrl}}/api/user/subscriptions/999999/terminate
+Authorization: Bearer {{user_token}}
+

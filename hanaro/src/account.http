@@ -1,0 +1,82 @@
+### Account entity HTTP tests
+### Account 전용 컨트롤러는 없어서 Subscription 흐름을 통해 간접 검증합니다.
+
+@baseUrl = http://localhost:8080
+@userEmail = user1@test.com
+@userPassword = 12345678
+@firstProductAccountNumber = 30100010002
+@secondProductAccountNumber = 30100010003
+
+### User 로그인
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+> {%
+client.global.set("user_token", response.body.data.accessToken);
+%}
+
+### Account 간접 생성: 상품 가입 시 상품 계좌 생성
+POST {{baseUrl}}/api/user/subscriptions
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "accountNumber": "{{firstProductAccountNumber}}"
+}
+
+> {%
+client.global.set("account_subscription_id", response.body.data.id);
+%}
+
+### Account 간접 조회: 내 가입 내역에서 계좌번호 포맷 확인
+GET {{baseUrl}}/api/user/subscriptions
+Authorization: Bearer {{user_token}}
+
+### Account 간접 잔액 증가: 자유입출금 계좌에서 상품 계좌로 이체
+POST {{baseUrl}}/api/user/subscriptions/transfer
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "subscriptionId": {{account_subscription_id}},
+  "amount": 10000,
+  "fromAccountNumber": "12345678901"
+}
+
+### Account 비정상 테스트: 중복 계좌번호로 상품 가입
+POST {{baseUrl}}/api/user/subscriptions
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "productId": 2,
+  "accountNumber": "{{firstProductAccountNumber}}"
+}
+
+### Account 비정상 테스트: 존재하지 않는 출금 계좌로 이체
+POST {{baseUrl}}/api/user/subscriptions/transfer
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "subscriptionId": {{account_subscription_id}},
+  "amount": 10000,
+  "fromAccountNumber": "99999999999"
+}
+
+### Account 추가 생성 예시: 다른 상품 계좌 생성
+POST {{baseUrl}}/api/user/subscriptions
+Authorization: Bearer {{user_token}}
+Content-Type: application/json
+
+{
+  "productId": 7,
+  "accountNumber": "{{secondProductAccountNumber}}"
+}
+

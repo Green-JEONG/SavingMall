@@ -1,0 +1,119 @@
+### Product entity HTTP tests
+### Product 엔티티 관련 API: 사용자 조회, 관리자 생성/수정/삭제
+
+@baseUrl = http://localhost:8080
+@adminEmail = hanaro
+@adminPassword = 12345678
+@userEmail = user1@test.com
+@userPassword = 12345678
+
+### Admin 로그인
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+> {%
+client.global.set("admin_token", response.body.data.accessToken);
+%}
+
+### User 로그인
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+> {%
+client.global.set("user_token", response.body.data.accessToken);
+%}
+
+### Product 사용자 목록 조회
+GET {{baseUrl}}/api/user/products
+Authorization: Bearer {{user_token}}
+
+### Product 사용자 상세 조회
+GET {{baseUrl}}/api/user/products/1
+Authorization: Bearer {{user_token}}
+
+### Product 관리자 목록 조회
+GET {{baseUrl}}/api/admin/products
+Authorization: Bearer {{admin_token}}
+
+### Product 생성
+POST {{baseUrl}}/api/admin/products
+Authorization: Bearer {{admin_token}}
+Content-Type: multipart/form-data; boundary=HanaroBoundary
+
+--HanaroBoundary
+Content-Disposition: form-data; name="request"; filename="request.json"
+Content-Type: application/json
+
+{
+  "name": "HTTP Product Test",
+  "type": "SAVINGS",
+  "paymentAmount": 150000,
+  "savingsCycle": "MONTHLY",
+  "periodMonths": 12,
+  "maturityRate": 4.1,
+  "terminationRate": 1.5
+}
+--HanaroBoundary--
+
+> {%
+client.global.set("product_id", response.body.data.id);
+%}
+
+### Product 단건 조회
+GET {{baseUrl}}/api/admin/products/{{product_id}}
+Authorization: Bearer {{admin_token}}
+
+### Product 수정
+PUT {{baseUrl}}/api/admin/products/{{product_id}}
+Authorization: Bearer {{admin_token}}
+Content-Type: multipart/form-data; boundary=HanaroBoundary
+
+--HanaroBoundary
+Content-Disposition: form-data; name="request"; filename="request.json"
+Content-Type: application/json
+
+{
+  "name": "HTTP Product Test Updated",
+  "type": "SAVINGS",
+  "paymentAmount": 200000,
+  "savingsCycle": "MONTHLY",
+  "periodMonths": 18,
+  "maturityRate": 4.3,
+  "terminationRate": 1.7
+}
+--HanaroBoundary--
+
+### Product 삭제
+DELETE {{baseUrl}}/api/admin/products/{{product_id}}
+Authorization: Bearer {{admin_token}}
+
+### Product 비정상 테스트: 적금에 savingsCycle 누락
+POST {{baseUrl}}/api/admin/products
+Authorization: Bearer {{admin_token}}
+Content-Type: multipart/form-data; boundary=HanaroBoundary
+
+--HanaroBoundary
+Content-Disposition: form-data; name="request"; filename="request.json"
+Content-Type: application/json
+
+{
+  "name": "Invalid Savings Product",
+  "type": "SAVINGS",
+  "paymentAmount": 100000,
+  "savingsCycle": null,
+  "periodMonths": 12,
+  "maturityRate": 4.0,
+  "terminationRate": 1.0
+}
+--HanaroBoundary--
+
