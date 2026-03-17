@@ -1,6 +1,5 @@
 package com.hana8.hanaro.service;
 
-import com.hana8.hanaro.config.AppProperties;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,15 +8,17 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-@RequiredArgsConstructor
 public class FileStorageService {
 
-    private final AppProperties appProperties;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+    @Value("${app.upload.root-path}")
+    private String rootPath;
 
     public String save(MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -25,7 +26,7 @@ public class FileStorageService {
         }
 
         String datePath = LocalDate.now().format(DATE_FORMATTER);
-        Path directory = Paths.get(appProperties.getRootPath(), datePath);
+        Path directory = Paths.get(rootPath, datePath);
 
         try {
             Files.createDirectories(directory);
