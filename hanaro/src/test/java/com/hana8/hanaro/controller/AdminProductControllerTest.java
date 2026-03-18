@@ -57,8 +57,21 @@ class AdminProductControllerTest {
                 SavingsCycle.MONTHLY, 12, BigDecimal.valueOf(4.0), BigDecimal.valueOf(1.5));
         when(productService.create(any(ProductRequestDTO.class), any())).thenReturn(productResponse());
 
+        mockMvc.perform(multipart("/api/admin/products")
+                        .param("request", objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(1));
+    }
+
+    @Test
+    void createWithOctetStreamRequestPart() throws Exception {
+        ProductRequestDTO request = new ProductRequestDTO("상품", ProductType.SAVINGS, BigDecimal.valueOf(10000),
+                SavingsCycle.MONTHLY, 12, BigDecimal.valueOf(4.0), BigDecimal.valueOf(1.5));
+        when(productService.create(any(ProductRequestDTO.class), any())).thenReturn(productResponse());
+
         MockMultipartFile requestPart = new MockMultipartFile(
-                "request", "request", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+                "request", "", MediaType.APPLICATION_OCTET_STREAM_VALUE, objectMapper.writeValueAsBytes(request)
+        );
 
         mockMvc.perform(multipart("/api/admin/products").file(requestPart))
                 .andExpect(status().isOk())
@@ -80,10 +93,8 @@ class AdminProductControllerTest {
                 SavingsCycle.MONTHLY, 12, BigDecimal.valueOf(4.0), BigDecimal.valueOf(1.5));
         when(productService.update(eq(1L), any(ProductRequestDTO.class), any())).thenReturn(productResponse());
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-                "request", "request", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
-
-        MockMultipartHttpServletRequestBuilder builder = multipart("/api/admin/products/1").file(requestPart);
+        MockMultipartHttpServletRequestBuilder builder = multipart("/api/admin/products/1")
+                .param("request", objectMapper.writeValueAsString(request));
         builder.with(req -> {
             req.setMethod("PUT");
             return req;

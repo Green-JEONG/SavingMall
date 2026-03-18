@@ -22,12 +22,12 @@ public class ProductService {
     private static final Logger PRODUCT_LOGGER = LoggerFactory.getLogger("audit.product");
 
     private final ProductRepository productRepository;
-    private final FileStorageService fileStorageService;
+    private final FileService fileService;
 
     @Transactional
     public ProductResponseDTO create(ProductRequestDTO request, MultipartFile image) {
         validateRequest(request);
-        String imagePath = fileStorageService.save(image);
+        String imagePath = fileService.upload(image);
         Product product = ProductMapper.toEntity(request, imagePath);
 
         Product saved = productRepository.save(product);
@@ -50,7 +50,7 @@ public class ProductService {
     public ProductResponseDTO update(Long productId, ProductRequestDTO request, MultipartFile image) {
         validateRequest(request);
         Product product = findProduct(productId);
-        String imagePath = image == null || image.isEmpty() ? product.getImagePath() : fileStorageService.save(image);
+        String imagePath = image == null || image.isEmpty() ? product.getImagePath() : fileService.upload(image);
         product.update(
                 request.name(),
                 request.type(),

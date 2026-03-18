@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
 @ControllerAdvice
@@ -32,6 +33,11 @@ public class ControllerExceptionHandler {
             return ResponseEntity.status(statusCode).body("Warn: " + message);
         }
         return ResponseEntity.status(statusCode).body("Error: " + message);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<String> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+        return ResponseEntity.status(413).body("Warn: 업로드 가능한 파일 크기를 초과했습니다.");
     }
 
     @ExceptionHandler(Exception.class)

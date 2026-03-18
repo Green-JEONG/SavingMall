@@ -30,7 +30,7 @@ class ProductServiceTest {
     @Mock
     private ProductRepository productRepository;
     @Mock
-    private FileStorageService fileStorageService;
+    private FileService fileService;
 
     @InjectMocks
     private ProductService productService;
@@ -39,7 +39,7 @@ class ProductServiceTest {
     void givenRequestAndImage_whenCreate_thenSavedProductIsReturned() {
         ProductRequestDTO request = productRequest();
         MockMultipartFile image = new MockMultipartFile("image", "sample.png", "image/png", "img".getBytes());
-        given(fileStorageService.save(image)).willReturn("/upload/sample.png");
+        given(fileService.upload(image)).willReturn("/upload/sample.png");
         given(productRepository.save(any(Product.class))).willAnswer(invocation -> {
             Product source = invocation.getArgument(0);
             return Product.builder()
@@ -82,7 +82,7 @@ class ProductServiceTest {
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.imagePath()).isEqualTo("/upload/original.png");
         assertThat(product.getName()).isEqualTo("적금 상품");
-        verify(fileStorageService, never()).save(any());
+        verify(fileService, never()).upload(any());
     }
 
     @Test
