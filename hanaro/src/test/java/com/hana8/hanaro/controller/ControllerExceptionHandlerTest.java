@@ -11,6 +11,9 @@ import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
@@ -56,9 +59,28 @@ class ControllerExceptionHandlerTest {
     }
 
     @Test
-    void authorizationDeniedReturnsForbiddenMap() {
+    void authorizationDeniedWithoutAuthenticationReturnsUnauthorizedMap() {
+        SecurityContextHolder.clearContext();
+
+        assertThat(handler.handleAccessDeniedException(new org.springframework.security.authorization.AuthorizationDeniedException("Access Denied")).getStatusCode())
+                .isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    void authorizationDeniedWithAuthenticationReturnsForbiddenMap() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        "user@test.com",
+                        "password",
+                        java.util.List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                )
+        );
+
         assertThat(handler.handleAccessDeniedException(new org.springframework.security.authorization.AuthorizationDeniedException("Access Denied")).getBody())
-                .containsEntry("error", "Access Denied");
+                .containsEntry("error", "FORBIDDEN")
+                .containsEntry("message", "접근 권한이 없습니다.");
+
+        SecurityContextHolder.clearContext();
     }
 
     @Test

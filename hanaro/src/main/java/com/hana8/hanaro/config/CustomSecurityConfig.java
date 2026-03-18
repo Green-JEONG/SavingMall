@@ -22,6 +22,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.hana8.hanaro.security.JwtAuthenticationFilter;
+import com.hana8.hanaro.security.handler.CustomAuthenticationEntryPoint;
 import com.hana8.hanaro.security.handler.CustomAccessDeniedHandler;
 import com.hana8.hanaro.security.handler.LoginFailureHandler;
 import com.hana8.hanaro.security.handler.LoginSuccessHandler;
@@ -36,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomSecurityConfig {
     private final LoginSuccessHandler successHandler;
     private final LoginFailureHandler failureHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -51,7 +53,9 @@ public class CustomSecurityConfig {
                 .formLogin(form -> form.loginPage("/api/subscriber/login")
                         .successHandler(successHandler)
                         .failureHandler(failureHandler)
-                ).exceptionHandling(config -> config.accessDeniedHandler(accessDeniedHandler))
+                ).exceptionHandling(config -> config
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
