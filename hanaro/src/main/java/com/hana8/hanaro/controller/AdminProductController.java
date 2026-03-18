@@ -10,8 +10,11 @@ import com.hana8.hanaro.service.ProductService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 import jakarta.validation.ConstraintViolation;
@@ -37,7 +40,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @RestController
 @RequestMapping("/api/admin/products")
 @RequiredArgsConstructor
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
+@Tag(name = "관리자 상품 API", description = "관리자의 예금/적금 상품 등록, 조회, 수정, 삭제 API입니다.")
 public class AdminProductController {
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().findAndAddModules().build();
@@ -45,13 +49,24 @@ public class AdminProductController {
 
     private final ProductService productService;
 
-    @Operation(summary = "관리자 상품 목록 조회")
+    @Operation(summary = "관리자 상품 목록 조회", description = "등록된 전체 상품 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "상품 목록 조회에 성공했습니다.", content = @Content(mediaType = "application/json")),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증이 필요합니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자 권한이 필요합니다.")
+    })
     @GetMapping
     public ApiResponse<List<ProductResponseDTO>> getAll() {
         return ApiResponse.ok(productService.getAll());
     }
 
-    @Operation(summary = "관리자 상품 등록")
+    @Operation(summary = "관리자 상품 등록", description = "상품 정보와 대표 이미지 1개를 함께 등록합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "상품 등록에 성공했습니다.", content = @Content(mediaType = "application/json")),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "상품 요청 정보가 없거나 형식이 올바르지 않습니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증이 필요합니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자 권한이 필요합니다.")
+    })
     @RequestBody(
             required = true,
             content = @Content(
@@ -61,6 +76,7 @@ public class AdminProductController {
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<ProductResponseDTO> create(
+            @Parameter(name = "image", description = "대표 이미지 파일 1개")
             @RequestParam(value = "image", required = false) MultipartFile image,
             @Parameter(hidden = true)
             HttpServletRequest servletRequest
@@ -70,13 +86,32 @@ public class AdminProductController {
         return ApiResponse.ok(productService.create(request, image));
     }
 
-    @Operation(summary = "관리자 상품 조회")
+    @Operation(summary = "관리자 상품 조회", description = "상품 ID로 특정 상품 정보를 조회합니다.")
+    @Parameters({
+            @Parameter(name = "productId", description = "상품 ID", example = "1")
+    })
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "상품 조회에 성공했습니다.", content = @Content(mediaType = "application/json")),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증이 필요합니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자 권한이 필요합니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "해당 상품이 없습니다.")
+    })
     @GetMapping("/{productId}")
     public ApiResponse<ProductResponseDTO> getOne(@PathVariable Long productId) {
         return ApiResponse.ok(productService.getOne(productId));
     }
 
-    @Operation(summary = "관리자 상품 수정")
+    @Operation(summary = "관리자 상품 수정", description = "상품 ID에 해당하는 상품 정보를 수정하고 대표 이미지 1개를 교체할 수 있습니다.")
+    @Parameters({
+            @Parameter(name = "productId", description = "상품 ID", example = "1")
+    })
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "상품 수정에 성공했습니다.", content = @Content(mediaType = "application/json")),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "상품 요청 정보가 없거나 형식이 올바르지 않습니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증이 필요합니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자 권한이 필요합니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "수정할 상품이 없습니다.")
+    })
     @RequestBody(
             required = true,
             content = @Content(
@@ -87,6 +122,7 @@ public class AdminProductController {
     @PutMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<ProductResponseDTO> update(
             @PathVariable Long productId,
+            @Parameter(name = "image", description = "대표 이미지 파일 1개")
             @RequestParam(value = "image", required = false) MultipartFile image,
             @Parameter(hidden = true)
             HttpServletRequest servletRequest
@@ -96,7 +132,16 @@ public class AdminProductController {
         return ApiResponse.ok(productService.update(productId, request, image));
     }
 
-    @Operation(summary = "관리자 상품 삭제")
+    @Operation(summary = "관리자 상품 삭제", description = "상품 ID에 해당하는 상품을 삭제합니다.")
+    @Parameters({
+            @Parameter(name = "productId", description = "상품 ID", example = "1")
+    })
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "상품 삭제에 성공했습니다.", content = @Content(mediaType = "application/json")),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증이 필요합니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자 권한이 필요합니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "삭제할 상품이 없습니다.")
+    })
     @DeleteMapping("/{productId}")
     public ApiResponse<Void> delete(@PathVariable Long productId) {
         productService.delete(productId);
@@ -167,7 +212,7 @@ public class AdminProductController {
         )
         public ProductRequestDTO request;
 
-        @Schema(type = "string", format = "binary", description = "상품 이미지 파일")
+        @Schema(type = "string", format = "binary", description = "대표 이미지 파일 1개")
         public String image;
     }
 }
