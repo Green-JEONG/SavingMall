@@ -60,7 +60,7 @@ management:
     web:
       exposure:
         include: "*"
-        exclude: env,beans
+#        exclude: env,beans
   endpoint:
     metrics:
       access: read_only
