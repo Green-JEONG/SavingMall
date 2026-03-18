@@ -76,7 +76,7 @@ class FileServiceTest {
 
         assertThatThrownBy(() -> fileService.upload(oversizedFile))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("파일 하나의 최대 크기는 2MB입니다.");
+                .hasMessage("파일은 1개당 최대 2MB까지 업로드할 수 있습니다.");
     }
 
     @Test
@@ -91,7 +91,7 @@ class FileServiceTest {
 
         assertThatThrownBy(() -> fileService.uploadRequired(emptyFile))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("파일이 비어있습니다.");
+                .hasMessage("업로드할 파일을 선택해 주세요.");
     }
 
     @Test
@@ -109,6 +109,6 @@ class FileServiceTest {
 
         assertThatThrownBy(() -> fileService.uploadMultiple(List.of(file1, file2)))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("전체 업로드 최대 크기는 10MB입니다.");
+                .hasMessage("전체 업로드 용량은 최대 10MB까지 가능합니다.");
     }
 }

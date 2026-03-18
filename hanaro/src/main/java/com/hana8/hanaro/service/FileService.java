@@ -35,7 +35,7 @@ public class FileService {
         }
 
         if (file.getSize() > MAX_FILE_SIZE_BYTES) {
-            throw new IllegalArgumentException("파일 하나의 최대 크기는 2MB입니다.");
+            throw new IllegalArgumentException("파일은 1개당 최대 2MB까지 업로드할 수 있습니다.");
         }
 
         String originalFilename = file.getOriginalFilename();
@@ -45,7 +45,7 @@ public class FileService {
         Path targetDirectory = basePath.resolve(dateDirectory).normalize();
 
         if (!targetDirectory.startsWith(basePath)) {
-            throw new IllegalArgumentException("잘못된 파일 경로입니다.");
+            throw new IllegalArgumentException("허용되지 않은 파일 경로입니다.");
         }
 
         try {
@@ -61,7 +61,7 @@ public class FileService {
 
     public List<String> uploadMultiple(List<MultipartFile> files) {
         if (files == null || files.isEmpty()) {
-            throw new IllegalArgumentException("파일이 비어있습니다.");
+            throw new IllegalArgumentException("업로드할 파일을 선택해 주세요.");
         }
 
         long totalSize = files.stream()
@@ -70,7 +70,7 @@ public class FileService {
                 .sum();
 
         if (totalSize > MAX_TOTAL_UPLOAD_SIZE_BYTES) {
-            throw new IllegalArgumentException("전체 업로드 최대 크기는 10MB입니다.");
+            throw new IllegalArgumentException("전체 업로드 용량은 최대 10MB까지 가능합니다.");
         }
 
         return files.stream()
@@ -80,7 +80,7 @@ public class FileService {
 
     public String uploadRequired(MultipartFile file) {
         if (file == null || file.isEmpty() || file.getOriginalFilename() == null) {
-            throw new IllegalArgumentException("파일이 비어있습니다.");
+            throw new IllegalArgumentException("업로드할 파일을 선택해 주세요.");
         }
         return upload(file);
     }

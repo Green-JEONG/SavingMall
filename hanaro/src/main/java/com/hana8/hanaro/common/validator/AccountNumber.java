@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AccountNumber {
-    String message() default "계좌번호는 숫자 11자리여야 합니다.";
+    String message() default "계좌번호는 하이픈 없이 숫자 11자리여야 합니다.";
 
     Class<?>[] groups() default {};
 

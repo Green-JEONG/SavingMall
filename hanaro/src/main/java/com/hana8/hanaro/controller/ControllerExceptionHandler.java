@@ -25,7 +25,9 @@ public class ControllerExceptionHandler {
     // 400 Bad Request
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalExceptionHandler(IllegalArgumentException e) {
-        String message = e.getMessage();
+        String message = (e.getMessage() == null || e.getMessage().isBlank())
+                ? "요청 값을 확인해 주세요."
+                : e.getMessage();
         return ResponseEntity.badRequest().body("Warn: " + message);
     }
 
@@ -74,7 +76,8 @@ public class ControllerExceptionHandler {
     // 401 Unauthorized
     @ExceptionHandler(CustomJwtException.class)
     public ResponseEntity<Map<String, String>> handleJwtException(CustomJwtException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "UNAUTHORIZED", "message", e.getMessage()));
     }
 
     // Variable: e.g. 400, 401, 404, 409, 500
@@ -96,13 +99,16 @@ public class ControllerExceptionHandler {
     // 413 Payload Too Large
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<String> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("Warn: 업로드 가능한 파일 크기를 초과했습니다.");
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body("Warn: 업로드 가능한 용량을 초과했습니다. 파일 1개는 2MB, 전체는 10MB까지 업로드할 수 있습니다.");
     }
 
     // 500 Internal Server Error
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleOthersExceptionHandler(Exception e) {
-        String message = e.getMessage();
+        String message = (e.getMessage() == null || e.getMessage().isBlank())
+                ? "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+                : e.getMessage();
         e.printStackTrace(System.out);
         return ResponseEntity.internalServerError().body("Error: " + message);
     }

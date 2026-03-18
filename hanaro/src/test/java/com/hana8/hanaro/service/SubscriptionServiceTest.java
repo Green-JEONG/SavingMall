@@ -139,7 +139,7 @@ class SubscriptionServiceTest {
 
         assertThatThrownBy(() -> subscriptionService.transfer(new TransferRequestDTO(12L, BigDecimal.valueOf(5000), "12345678901")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("잔액이 부족합니다.");
+                .hasMessage("출금 계좌 잔액이 부족합니다.");
     }
 
     @Test

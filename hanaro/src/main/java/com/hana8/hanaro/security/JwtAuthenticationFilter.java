@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     boolean roleMatches = userDetails.getAuthorities().stream()
                             .anyMatch(authority -> authority.getAuthority().equals(role));
                     if (!roleMatches) {
-                        throw new CustomJwtException("유효하지 않은 토큰입니다.");
+                        throw new CustomJwtException("토큰 권한 정보가 올바르지 않습니다.");
                     }
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

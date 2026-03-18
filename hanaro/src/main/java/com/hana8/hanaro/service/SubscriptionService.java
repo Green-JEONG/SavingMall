@@ -80,7 +80,7 @@ public class SubscriptionService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
         }
         if (subscription.getStatus() != SubscriptionStatus.ACTIVE) {
-            throw new IllegalArgumentException("가입 상태가 유효하지 않습니다.");
+            throw new IllegalArgumentException("해당 가입 상품은 현재 해지할 수 없습니다.");
         }
 
         BigDecimal interest = calculateInterest(subscription, subscription.getProduct().getTerminationRate());
@@ -104,7 +104,7 @@ public class SubscriptionService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
         }
         if (fromAccount.getBalance().compareTo(request.amount()) < 0) {
-            throw new IllegalArgumentException("잔액이 부족합니다.");
+            throw new IllegalArgumentException("출금 계좌 잔액이 부족합니다.");
         }
 
         fromAccount.subtractBalance(request.amount());

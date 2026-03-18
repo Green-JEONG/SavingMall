@@ -23,6 +23,9 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        objectMapper.writeValue(response.getWriter(), Map.of("error", "LOGIN_FAILED", "message", exception.getMessage()));
+        objectMapper.writeValue(response.getWriter(), Map.of(
+                "error", "LOGIN_FAILED",
+                "message", "이메일 또는 비밀번호가 올바르지 않습니다."
+        ));
     }
 }

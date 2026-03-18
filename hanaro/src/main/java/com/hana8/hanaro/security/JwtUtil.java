@@ -48,13 +48,13 @@ public class JwtUtil {
     public String createAccessToken(Authentication authentication) {
         Object principal = authentication.getPrincipal();
         if (!(principal instanceof UserDetails userDetails)) {
-            throw new CustomJwtException("인증 정보가 올바르지 않습니다.");
+            throw new CustomJwtException("로그인 사용자 정보를 확인할 수 없습니다.");
         }
 
         String role = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
-                .orElseThrow(() -> new CustomJwtException("권한 정보가 없습니다."));
+                .orElseThrow(() -> new CustomJwtException("토큰에 권한 정보가 없습니다."));
 
         return createAccessToken(userDetails.getUsername(), role);
     }
@@ -67,9 +67,9 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (ExpiredJwtException e) {
-            throw new CustomJwtException("만료된 토큰입니다.");
+            throw new CustomJwtException("로그인이 만료되었습니다. 다시 로그인해 주세요.");
         } catch (JwtException | IllegalArgumentException e) {
-            throw new CustomJwtException("유효하지 않은 토큰입니다.");
+            throw new CustomJwtException("인증 토큰이 유효하지 않습니다.");
         }
     }
 

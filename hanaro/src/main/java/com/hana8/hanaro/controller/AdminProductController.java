@@ -178,7 +178,7 @@ public class AdminProductController {
                         return body;
                     }
                 } catch (Exception e) {
-                    throw new IllegalArgumentException("상품 요청 정보를 읽을 수 없습니다.");
+                    throw new IllegalArgumentException("상품 정보(request)를 읽을 수 없습니다.");
                 }
             }
         }
@@ -186,19 +186,19 @@ public class AdminProductController {
         try {
             Part requestPart = servletRequest.getPart("request");
             if (requestPart == null) {
-                throw new IllegalArgumentException("상품 요청 정보는 필수입니다.");
+                throw new IllegalArgumentException("상품 정보(request)는 필수입니다.");
             }
 
             byte[] bytes = requestPart.getInputStream().readAllBytes();
             String body = new String(bytes, StandardCharsets.UTF_8);
             if (body.isBlank()) {
-                throw new IllegalArgumentException("상품 요청 정보는 필수입니다.");
+                throw new IllegalArgumentException("상품 정보(request)는 필수입니다.");
             }
             return body;
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
-            throw new IllegalArgumentException("상품 요청 정보를 읽을 수 없습니다.");
+            throw new IllegalArgumentException("상품 정보(request)를 읽을 수 없습니다.");
         }
     }
 
@@ -206,7 +206,7 @@ public class AdminProductController {
         try {
             return OBJECT_MAPPER.readValue(requestJson, ProductRequestDTO.class);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("상품 요청 정보가 올바른 JSON 형식이 아닙니다.");
+            throw new IllegalArgumentException("상품 정보(request)는 올바른 JSON 형식이어야 합니다.");
         }
     }
 

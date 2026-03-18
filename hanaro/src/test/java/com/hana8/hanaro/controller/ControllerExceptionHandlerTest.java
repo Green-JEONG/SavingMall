@@ -85,8 +85,9 @@ class ControllerExceptionHandlerTest {
 
     @Test
     void customJwtExceptionReturnsUnauthorizedMap() {
-        assertThat(handler.handleJwtException(new CustomJwtException("만료된 토큰입니다.")).getStatusCode())
-                .isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(handler.handleJwtException(new CustomJwtException("로그인이 만료되었습니다. 다시 로그인해 주세요.")).getBody())
+                .containsEntry("error", "UNAUTHORIZED")
+                .containsEntry("message", "로그인이 만료되었습니다. 다시 로그인해 주세요.");
     }
 
     @Test

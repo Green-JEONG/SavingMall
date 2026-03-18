@@ -54,11 +54,11 @@ class UserSubscriptionControllerTest {
 
     @Test
     void subscribeWithInvalidAccountNumberReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/api/user/subscriptions")
+                mockMvc.perform(post("/api/user/subscriptions")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(new SubscribeRequestDTO(1L, "1234"))))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.accountNumber").value("계좌번호는 숫자 11자리여야 합니다."));
+                .andExpect(jsonPath("$.accountNumber").value("계좌번호는 하이픈 없이 숫자 11자리여야 합니다."));
     }
 
     @Test
@@ -111,7 +111,7 @@ class UserSubscriptionControllerTest {
                         .contentType("application/json")
                         .content("{\"subscriptionId\":1,\"amount\":1000,\"fromAccountNumber\":\"12-345\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.fromAccountNumber").value("계좌번호는 숫자 11자리여야 합니다."));
+                .andExpect(jsonPath("$.fromAccountNumber").value("계좌번호는 하이픈 없이 숫자 11자리여야 합니다."));
     }
 
     @Test

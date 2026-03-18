@@ -81,6 +81,6 @@ class AccountServiceTest {
 
         assertThatThrownBy(() -> accountService.createProductAccount(user, "123-4567-8901", "SAVINGS"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("계좌번호는 숫자 11자리여야 합니다.");
+                .hasMessage("계좌번호는 하이픈 없이 숫자 11자리여야 합니다.");
     }
 }
