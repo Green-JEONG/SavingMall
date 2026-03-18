@@ -26,6 +26,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public UserSummaryResponseDTO currentUserSummary() {
+        return UserMapper.toUserSummaryResponseDTO(currentUser());
+    }
+
+    @Transactional(readOnly = true)
     public List<UserSummaryResponseDTO> getAllUsers(String keyword) {
         List<User> users = keyword == null || keyword.isBlank()
                 ? userRepository.findAll()
