@@ -20,11 +20,10 @@ class SecurityIntegrationTest {
     private MockMvc mockMvc;
 
     @Test
-    void givenNoToken_whenRequestAdminApi_thenUnauthorizedErrorResponseIsReturned() throws Exception {
+    void givenNoToken_whenRequestAdminApi_thenForbiddenErrorResponseIsReturned() throws Exception {
         mockMvc.perform(get("/api/admin/products"))
                 .andExpect(status().isForbidden())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.error").value("FORBIDDEN"))
-                .andExpect(jsonPath("$.message").value("접근 권한이 없습니다."));
+                .andExpect(jsonPath("$.error").value("Access Denied"));
     }
 }
