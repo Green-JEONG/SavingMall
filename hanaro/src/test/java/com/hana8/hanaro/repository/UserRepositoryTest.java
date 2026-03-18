@@ -34,7 +34,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findByEmailOrNicknameOrPhoneNumberContaining() {
+    void searchByKeywordUsesQueryDslForEmailNicknameAndPhoneNumber() {
         userRepository.save(User.builder()
                 .email("alpha@test.com")
                 .password("pw")
@@ -52,13 +52,40 @@ class UserRepositoryTest {
                 .createdAt(LocalDateTime.now())
                 .build());
 
-        assertThat(userRepository.findByEmailContainingIgnoreCaseOrNicknameContainingIgnoreCaseOrPhoneNumberContaining(
-                "ALPHA", "ALPHA", "ALPHA"
-        )).extracting(User::getEmail).containsExactly("alpha@test.com");
+        assertThat(userRepository.searchByKeyword("ALPHA"))
+                .extracting(User::getEmail)
+                .containsExactly("alpha@test.com");
 
-        assertThat(userRepository.findByEmailContainingIgnoreCaseOrNicknameContainingIgnoreCaseOrPhoneNumberContaining(
-                "beta", "beta", "beta"
-        )).extracting(User::getEmail, User::getNickname)
+        assertThat(userRepository.searchByKeyword("beta"))
+                .extracting(User::getEmail, User::getNickname)
                 .containsExactly(Tuple.tuple("beta@test.com", "tester-beta"));
+
+        assertThat(userRepository.searchByKeyword("0109999"))
+                .extracting(User::getEmail)
+                .containsExactly("alpha@test.com");
+    }
+
+    @Test
+    void searchByKeywordReturnsAllUsersWhenKeywordIsBlank() {
+        userRepository.save(User.builder()
+                .email("first@test.com")
+                .password("pw")
+                .nickname("first")
+                .phoneNumber("01012340001")
+                .role(Role.ROLE_USER)
+                .createdAt(LocalDateTime.now())
+                .build());
+        userRepository.save(User.builder()
+                .email("second@test.com")
+                .password("pw")
+                .nickname("second")
+                .phoneNumber("01012340002")
+                .role(Role.ROLE_USER)
+                .createdAt(LocalDateTime.now())
+                .build());
+
+        assertThat(userRepository.searchByKeyword("   "))
+                .extracting(User::getEmail)
+                .containsExactly("first@test.com", "second@test.com");
     }
 }

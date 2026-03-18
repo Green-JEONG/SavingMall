@@ -64,7 +64,7 @@ class UserServiceTest {
 
     @Test
     void givenUsers_whenGetAllUsers_thenSummaryListIsReturned() {
-        given(userRepository.findAll()).willReturn(List.of(
+        given(userRepository.searchByKeyword(null)).willReturn(List.of(
                 user("user1@test.com", "tester1", "01012340001"),
                 user("user2@test.com", "tester2", "01012340002")
         ));
@@ -78,9 +78,8 @@ class UserServiceTest {
 
     @Test
     void givenKeyword_whenGetAllUsers_thenFilteredUsersAreReturned() {
-        given(userRepository.findByEmailContainingIgnoreCaseOrNicknameContainingIgnoreCaseOrPhoneNumberContaining(
-                "nick", "nick", "nick"
-        )).willReturn(List.of(user("user1@test.com", "nick-one", "01012340001")));
+        given(userRepository.searchByKeyword("nick"))
+                .willReturn(List.of(user("user1@test.com", "nick-one", "01012340001")));
 
         List<UserSummaryResponseDTO> result = userService.getAllUsers("nick");
 

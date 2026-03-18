@@ -32,11 +32,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserSummaryResponseDTO> getAllUsers(String keyword) {
-        List<User> users = keyword == null || keyword.isBlank()
-                ? userRepository.findAll()
-                : userRepository.findByEmailContainingIgnoreCaseOrNicknameContainingIgnoreCaseOrPhoneNumberContaining(
-                        keyword, keyword, keyword
-                );
+        List<User> users = userRepository.searchByKeyword(keyword);
 
         return users.stream()
                 .map(UserMapper::toUserSummaryResponseDTO)
