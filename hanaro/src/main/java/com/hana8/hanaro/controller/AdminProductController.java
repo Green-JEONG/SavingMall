@@ -23,6 +23,7 @@ import jakarta.validation.Validator;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -152,7 +153,12 @@ public class AdminProductController {
         ProductRequestDTO request = readRequest(requestJson);
         Set<ConstraintViolation<ProductRequestDTO>> violations = VALIDATOR.validate(request);
         if (!violations.isEmpty()) {
-            throw new IllegalArgumentException(violations.iterator().next().getMessage());
+            String message = violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.joining(", "));
+            throw new IllegalArgumentException(message);
         }
         return request;
     }

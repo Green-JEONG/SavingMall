@@ -64,6 +64,31 @@ class AdminProductControllerTest {
     }
 
     @Test
+    void createWithInvalidProductRequestReturnsBadRequest() throws Exception {
+        ProductRequestDTO request = new ProductRequestDTO("", ProductType.SAVINGS, BigDecimal.valueOf(-1),
+                null, 0, BigDecimal.valueOf(-1), BigDecimal.valueOf(101));
+
+        mockMvc.perform(multipart("/api/admin/products")
+                        .param("request", objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getContentAsString())
+                        .contains("상품명은 필수입니다.")
+                        .contains("납입 금액은 0보다 커야 합니다."));
+    }
+
+    @Test
+    void createWithInvalidSavingsCycleByProductTypeReturnsBadRequest() throws Exception {
+        ProductRequestDTO request = new ProductRequestDTO("예금 상품", ProductType.DEPOSIT, BigDecimal.valueOf(10000),
+                SavingsCycle.MONTHLY, 12, BigDecimal.valueOf(3.2), BigDecimal.valueOf(1.0));
+
+        mockMvc.perform(multipart("/api/admin/products")
+                        .param("request", objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getContentAsString())
+                        .contains("예금은 납입 주기를 비워야 하고, 적금은 납입 주기를 선택해야 합니다."));
+    }
+
+    @Test
     void createWithOctetStreamRequestPart() throws Exception {
         ProductRequestDTO request = new ProductRequestDTO("상품", ProductType.SAVINGS, BigDecimal.valueOf(10000),
                 SavingsCycle.MONTHLY, 12, BigDecimal.valueOf(4.0), BigDecimal.valueOf(1.5));

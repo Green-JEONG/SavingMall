@@ -67,4 +67,20 @@ class AccountServiceTest {
                 .extracting("status")
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void givenInvalidProductAccountNumber_whenCreateProductAccount_thenIllegalArgumentExceptionIsThrown() {
+        User user = User.builder()
+                .email("user@test.com")
+                .password("password")
+                .nickname("tester")
+                .phoneNumber("01012345678")
+                .role(Role.ROLE_USER)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        assertThatThrownBy(() -> accountService.createProductAccount(user, "123-4567-8901", "SAVINGS"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("계좌번호는 숫자 11자리여야 합니다.");
+    }
 }

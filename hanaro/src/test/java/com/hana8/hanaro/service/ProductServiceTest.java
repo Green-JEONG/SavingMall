@@ -109,7 +109,7 @@ class ProductServiceTest {
 
         assertThatThrownBy(() -> productService.create(request, null))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("상품 입력값이 상품 유형과 일치하지 않습니다.");
+                .hasMessage("예금은 납입 주기를 비워야 하고, 적금은 납입 주기를 선택해야 합니다.");
     }
 
     private ProductRequestDTO productRequest() {

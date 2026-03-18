@@ -83,7 +83,7 @@ public class ProductService {
         boolean invalidSavings = request.type() == com.hana8.hanaro.common.enums.ProductType.SAVINGS
                 && request.savingsCycle() == null;
         if (invalidDeposit || invalidSavings) {
-            throw new IllegalArgumentException("상품 입력값이 상품 유형과 일치하지 않습니다.");
+            throw new IllegalArgumentException("예금은 납입 주기를 비워야 하고, 적금은 납입 주기를 선택해야 합니다.");
         }
     }
 

@@ -26,6 +26,9 @@ public class AccountService {
 
     @Transactional
     public Account createProductAccount(User user, String accountNumber, String accountType) {
+        if (accountNumber == null || !accountNumber.matches("\\d{11}")) {
+            throw new IllegalArgumentException("계좌번호는 숫자 11자리여야 합니다.");
+        }
         if (accountRepository.existsByAccountNumber(accountNumber)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 계좌번호입니다.");
         }

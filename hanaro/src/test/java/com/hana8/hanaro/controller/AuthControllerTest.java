@@ -43,6 +43,20 @@ class AuthControllerTest {
     }
 
     @Test
+    void signUpWithInvalidEmailAndPasswordReturnsBadRequest() throws Exception {
+        SignUpRequestDTO request = new SignUpRequestDTO("invalid-email", "1234", "", "01012345678");
+
+        mockMvc.perform(post("/api/auth/signup")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.email").value("올바른 이메일 형식이어야 합니다."))
+                .andExpect(jsonPath("$.password").value("비밀번호는 8자 이상 30자 이하여야 합니다."))
+                .andExpect(result -> org.assertj.core.api.Assertions.assertThat(result.getResponse().getContentAsString())
+                        .contains("닉네임은 필수입니다."));
+    }
+
+    @Test
     void login() throws Exception {
         when(authService.login(any(LoginRequest.class))).thenReturn(new AuthResponseDTO("token", "Bearer"));
         LoginRequest request = new LoginRequest("a@test.com", "12345678");

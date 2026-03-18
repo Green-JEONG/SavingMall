@@ -8,6 +8,9 @@ public class AccountNumberValidator implements ConstraintValidator<AccountNumber
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        return value != null && value.matches(ACCOUNT_PATTERN);
+        if (value == null || value.isBlank()) {
+            return true;
+        }
+        return value.matches(ACCOUNT_PATTERN);
     }
 }

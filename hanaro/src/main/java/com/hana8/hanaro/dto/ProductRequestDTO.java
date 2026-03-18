@@ -1,9 +1,11 @@
 package com.hana8.hanaro.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hana8.hanaro.common.enums.ProductType;
 import com.hana8.hanaro.common.enums.SavingsCycle;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -38,4 +40,15 @@ public record ProductRequestDTO(
         @DecimalMax(value = "100.00", message = "해지 수익률은 100 이하여야 합니다.")
         BigDecimal terminationRate
 ) {
+    @JsonIgnore
+    @AssertTrue(message = "예금은 납입 주기를 비워야 하고, 적금은 납입 주기를 선택해야 합니다.")
+    public boolean isSavingsCycleValid() {
+        if (type == null) {
+            return true;
+        }
+        if (type == ProductType.DEPOSIT) {
+            return savingsCycle == null;
+        }
+        return savingsCycle != null;
+    }
 }

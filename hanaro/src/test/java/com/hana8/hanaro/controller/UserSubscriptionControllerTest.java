@@ -53,6 +53,24 @@ class UserSubscriptionControllerTest {
     }
 
     @Test
+    void subscribeWithInvalidAccountNumberReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/user/subscriptions")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(new SubscribeRequestDTO(1L, "1234"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.accountNumber").value("계좌번호는 숫자 11자리여야 합니다."));
+    }
+
+    @Test
+    void subscribeWithBlankAccountNumberReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/user/subscriptions")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(new SubscribeRequestDTO(1L, ""))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.accountNumber").value("계좌번호는 필수입니다."));
+    }
+
+    @Test
     void mySubscriptions() throws Exception {
         when(subscriptionService.mySubscriptions()).thenReturn(List.of(new SubscriptionResponseDTO(
                 1L, "상품", "123-4567-8901", SubscriptionStatus.ACTIVE,
@@ -85,5 +103,23 @@ class UserSubscriptionControllerTest {
                         .content("{\"subscriptionId\":1,\"amount\":1000,\"fromAccountNumber\":\"12345678901\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    void transferWithInvalidAccountNumberReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/user/subscriptions/transfer")
+                        .contentType("application/json")
+                        .content("{\"subscriptionId\":1,\"amount\":1000,\"fromAccountNumber\":\"12-345\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fromAccountNumber").value("계좌번호는 숫자 11자리여야 합니다."));
+    }
+
+    @Test
+    void transferWithBlankAccountNumberReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/user/subscriptions/transfer")
+                        .contentType("application/json")
+                        .content("{\"subscriptionId\":1,\"amount\":1000,\"fromAccountNumber\":\"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fromAccountNumber").value("출금 계좌번호는 필수입니다."));
     }
 }
