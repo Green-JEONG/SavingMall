@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -76,5 +77,38 @@ class FileServiceTest {
         assertThatThrownBy(() -> fileService.upload(oversizedFile))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("파일 하나의 최대 크기는 2MB입니다.");
+    }
+
+    @Test
+    void uploadRequiredRejectsEmptyFile() {
+        FileService fileService = new FileService();
+        ReflectionTestUtils.setField(fileService, "uploadPath", tempDir.toString());
+        ReflectionTestUtils.setField(fileService, "securePath", tempDir.resolve("secure").toString());
+
+        MockMultipartFile emptyFile = new MockMultipartFile(
+                "image", "empty.png", "image/png", new byte[0]
+        );
+
+        assertThatThrownBy(() -> fileService.uploadRequired(emptyFile))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("파일이 비어있습니다.");
+    }
+
+    @Test
+    void uploadMultipleRejectsTotalSizeLargerThanTenMegabytes() {
+        FileService fileService = new FileService();
+        ReflectionTestUtils.setField(fileService, "uploadPath", tempDir.toString());
+        ReflectionTestUtils.setField(fileService, "securePath", tempDir.resolve("secure").toString());
+
+        MockMultipartFile file1 = new MockMultipartFile(
+                "files", "large1.png", "image/png", new byte[6 * 1024 * 1024]
+        );
+        MockMultipartFile file2 = new MockMultipartFile(
+                "files", "large2.png", "image/png", new byte[5 * 1024 * 1024]
+        );
+
+        assertThatThrownBy(() -> fileService.uploadMultiple(List.of(file1, file2)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("전체 업로드 최대 크기는 10MB입니다.");
     }
 }
