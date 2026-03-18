@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,22 @@ public class SwaggerConfig implements WebMvcConfigurer {
                 .info(new Info().title("Hanaro API").version("v1"))
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
+    }
+
+    @Bean
+    public GroupedOpenApi adminApi() {
+        return GroupedOpenApi.builder()
+                .group("ADMIN")
+                .pathsToMatch("/api/admin/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi userApi() {
+        return GroupedOpenApi.builder()
+                .group("USER")
+                .pathsToMatch("/api/auth/**", "/api/user/**")
+                .build();
     }
 
     @Override
