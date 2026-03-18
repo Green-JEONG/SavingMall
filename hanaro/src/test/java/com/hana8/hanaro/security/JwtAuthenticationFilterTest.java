@@ -10,6 +10,7 @@ import com.hana8.hanaro.repository.UserRepository;
 import com.hana8.hanaro.service.CustomUserDetailsService;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -51,6 +52,23 @@ class JwtAuthenticationFilterTest {
 
         assertThat(response.getStatus()).isEqualTo(401);
         assertThat(response.getContentAsString()).contains("UNAUTHORIZED");
+    }
+
+    @Test
+    void skipsExcludedPathWithoutJwtValidation() throws Exception {
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(
+                new JwtUtil(SECRET, 3600000),
+                new CustomUserDetailsService(mock(UserRepository.class))
+        );
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/auth/login");
+        request.addHeader("Authorization", "Bearer invalid-token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicBoolean chainCalled = new AtomicBoolean(false);
+
+        filter.doFilter(request, response, (req, res) -> chainCalled.set(true));
+
+        assertThat(chainCalled).isTrue();
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
     private User user() {
