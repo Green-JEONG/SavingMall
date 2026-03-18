@@ -13,11 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+@WithMockUser(roles = "ADMIN")
 class FileControllerTest {
 
     @Autowired
@@ -31,7 +33,7 @@ class FileControllerTest {
         MockMultipartFile file = new MockMultipartFile("file", "test.png", "image/png", "image".getBytes());
         when(fileService.uploadRequired(any())).thenReturn("/upload/20260318/test.png");
 
-        mockMvc.perform(multipart("/files/upload").file(file))
+        mockMvc.perform(multipart("/api/admin/files/upload").file(file))
                 .andExpect(status().isOk())
                 .andExpect(content().string("/upload/20260318/test.png"));
     }
@@ -45,7 +47,7 @@ class FileControllerTest {
                 "/upload/20260318/b.png"
         ));
 
-        mockMvc.perform(multipart("/files/upload/multiple").file(file1).file(file2))
+        mockMvc.perform(multipart("/api/admin/files/upload/multiple").file(file1).file(file2))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[\"/upload/20260318/a.png\",\"/upload/20260318/b.png\"]"));
     }
