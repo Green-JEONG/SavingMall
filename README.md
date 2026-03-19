@@ -220,3 +220,114 @@ Actuator는 애플리케이션 포트와 분리된 `9001` 포트에서 동작합
 - 로그 예시: [`logs`](logs)
 - 업로드 예시: [`src/main/resources/static/upload`](src/main/resources/static/upload)
 
+---
+
+<details>
+<summary> ✅ 평가 항목 단계별 확인</summary>
+
+## 1. 인증/인가 (10)
+### 1-1. JWT 발급 및 검증
+- [x] /api/auth/*signup* 으로 회원가입 후 /api/auth/*login* 으로 로그인
+- [x] 200 OK 확인 후 JWT 토큰 발급 확인 *(예시: eyJHbGci...)*
+
+### 1-2. ADMIN / USER 구분
+- [x] USER 토큰으로 /api/user/products **200 OK**인지 확인
+- [x] USER 토큰으로 GET /api/admin/products 또는 POST /api/admin/products 호출 시 **403** 인지 확인
+
+### 1-3. ROLE 기반 API 접근 제한
+- [x] 잘못된(만료 및 위조) JWT로 /api/admin/products API 호출 시 **401** 인지 확인
+
+## 2. 파일 업로드 (10)
+- [x] 관리자 상품 등록에서 이미지 업로드
+
+### 2-1. 날짜별 경로 저장 (/resources/static/upload/yyyyMMdd)
+- [x] 실제 저장 경로가 src/main/resources/**static**/**upload**/**yyyyMMdd** 인지 확인 *(예시 : src/main/resources/static/upload/20260319)*
+
+### 2-2. 파일명 중복 방지
+- [x] 같은 파일 두 번 업로드 후 저장명이 다른지(난수, uuid 차이) 확인
+
+### 2-3. 파일 크기 제한 (2M, 총 10MB)
+- [x] 2MB 초과 파일, 10MB 초과하는 파일 업로드 후 요청이 막히는지 확인 (첨부한 2.3MB 사진 업로드 해보기)
+
+## 3. Actuator (5)
+### 3-1. 기능 명세에서 요구한 모든 엔드포인트 (/health, /metrics 등) 확인 가능
+- [x] http://localhost:9001/actuator 접속
+- [x] http://localhost:9001/actuator/health, /metrics, /env, /beans 각각 접속
+- [x] 각각 JSON 데이터 잘 나오는지 확인
+
+## 4. 로깅 (10)
+### 4-1. logs 폴더에 분리된 로그파일 확인
+- [x] logs 폴더에 **user.log**, **product.log**, **service.log** 있는지 확인
+- [x] 회원가입/로그인/상품등록 후 각 로그 파일에 기록 생기는지 확인
+
+### 4-2. 로그 파일 보관 디렉토리 구성 및 롤링
+- [x] 날짜별(하루 기준) '날짜.log.gz' 롤링 파일 있는지 확인
+
+## 5. 기본 기능 구현 (20)
+- [x] Swagger에서 전부 실제 호출(try it out)해 보기
+
+### 5-1. 관리자 및 사용자 필수 기능 전체 구현 여부
+- [x] **관리자(admin)**:
+	- [x] 예적금 상품 등록/조회/수정/삭제
+```json
+// 상품 수정
+{
+  "name": "하나 프리미엄 정기예금 리뉴얼",
+  "type": "DEPOSIT",
+  "paymentAmount": 5500000,
+  "savingsCycle": null,
+  "periodMonths": 12,
+  "maturityRate": 4.1,
+  "terminationRate": 1.5
+}
+```
+- [x] 회원 관리(목록, 회원별 가입내역, 만기처리 등)
+- [x] **사용자(user)**
+	- [x] 회원가입/로그인
+	- [x] 예적금 상품 목록/상세/가입/이체/해지() API 등 *junho@test.com/12345678으로*
+
+## 6. Swagger (OpenAPI 3) (10)
+- [x] http://localhost:8080/swagger.html
+
+### 6-1. 사용자/관리자 API 구분
+- [x] (CRUD) /api/**user**/... 확인
+- [x] (CRUD) /api/**admin**/... 확인
+
+### 6-2. Swagger UI 로 모든 API 테스트 가능
+- [x] **Authorize 버튼** 클릭 후 **JWT 토큰** 넣고 모든 API 통신 테스트 가능한지 확인
+
+### 6-3. 명세 명확
+- [x] 각 API에 설명, 파라미터, 응답 코드가 보이는지 확인
+
+## 7. Validation (10)
+### 7-1. 회원가입, 상품 등록 시 @valid/@validated 적용
+- [x] 회원가입에 잘못된 이메일(@ 없음 등)/비밀번호로 **400** 확인
+- [x] 상품 등록에 잘못된 값(상품 가격이 - · 음수값)으로 **400** 확인
+
+### 7-2. 계좌번호 validator 확인
+- [x] 계좌번호 11자리 숫자 아닌 값(문자 삽입, 10자리 및 12자리)으로 **400** 에러 확인
+
+## 8. 코드 품질 및 구조화 (10)
+### 8-1. Controller/Service/Repository 분리
+- [x] 패키지가 **controller**/**service**/**repository** 로 분리됐는지 확인
+
+### 8-2. 중복 코드 최소화
+- [x] mapper, exception handler 등 공통화(똑같은 코드를 여러번 쓰지 않았는지 등) 여부 확인
+
+### 8-3. 명확한 네이밍과 로직 정리
+- [x] 메서드명과 클래스명이 역할에 맞는지(변수나 메서드명만 봐도 무슨 일 하는지 유추 가능한지) 확인
+
+## 9. 예외 처리 및 에러 응답 명세화 (5)
+### 9-1. 공통 예외 처리 (@ControllerAdvice, @ExceptionHandler)구현
+1) 공통 예외 처리
+   - [x] 공통 예외 처리 파일인 ControllerExceptionHandler 확인
+   - [x] @ControllerAdvice, @ExceptionHandler 잘 적용했는지 확인
+
+2) Jacoco Coverage 확인
+   - [x] build 후, build/reports/jacoco/test/html/index.html 접속
+   - [x] report 커버 비율 검사 (Mixxed Instructions *60~80%* 이상으로 맞추기)
+
+### 9-2. 커스텀 예외 메시지
+- [x] 상황에 맞는 정확한 HTTP 상태 코드(400: 잘못된 요청, 401: JWT 오류, 403: 권한 없음, 404: 없는 데이터, 413: 파일 크기 초과)와 "계좌번호 형식이 틀렸습니다" 같은 구체적인 이유를 프론트엔드에 내려주는지 확인
+
+</details>
