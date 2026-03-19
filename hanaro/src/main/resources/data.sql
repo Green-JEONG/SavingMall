@@ -1,10 +1,10 @@
 INSERT INTO `user` (`email`, `password`, `nickname`, `phoneNumber`, `role`, `createdAt`) VALUES
-('hanaro', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '하나관리자', '01090000000', 'ROLE_ADMIN', '2026-01-02 09:00:00'),
-('minji@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '민지', '01031001111', 'ROLE_USER', '2026-01-03 10:15:00'),
-('junho@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '준호', '01031002222', 'ROLE_USER', '2026-01-05 14:20:00'),
-('seoyeon@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '서연', '01031003333', 'ROLE_USER', '2026-01-08 11:05:00'),
-('doyun@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '도윤', '01031004444', 'ROLE_USER', '2026-01-12 16:40:00'),
-('jiwoo@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '지우', '01031005555', 'ROLE_USER', '2026-01-15 13:35:00');
+('hanaro', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '관리자', '01090000000', 'ROLE_ADMIN', '2026-01-02 09:00:00'),
+('minji@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '김민지', '01031001111', 'ROLE_USER', '2026-01-03 10:15:00'),
+('junho@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '이준호', '01031002222', 'ROLE_USER', '2026-01-05 14:20:00'),
+('seoyeon@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '박서연', '01031003333', 'ROLE_USER', '2026-01-08 11:05:00'),
+('doyun@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '최도윤', '01031004444', 'ROLE_USER', '2026-01-12 16:40:00'),
+('jiwoo@test.com', '$2y$10$YfGDGKBQexj2WoWLJABHneZMdW1nWR.xmGsIC8Neo50v0UcAQ.FtK', '한지우', '01031005555', 'ROLE_USER', '2026-01-15 13:35:00');
 
 --
 
